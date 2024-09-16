@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -6,7 +7,10 @@ using UnityEngine;
 public class SeekerAgent : Agent
 {
     [SerializeField] private Transform target;
-    [SerializeField] private float forceMultiplier = 10;
+    [SerializeField] private float forceMultiplier = 10f;
+    
+    [SerializeField] private float t;
+    [SerializeField] private TextMeshProUGUI timeCounter;
     
     private Rigidbody _rBody;
     
@@ -14,17 +18,23 @@ public class SeekerAgent : Agent
     {
         _rBody = GetComponent<Rigidbody>();
     }
-    
+
+    private void Update()
+    {
+        t -= 1f * Time.deltaTime;
+        var tCounter = Mathf.Ceil(t);
+        timeCounter.text = $"{tCounter}";
+    }
+
     public override void OnEpisodeBegin()
     {
-        if (transform.localPosition.y < 0)
-        {
-            _rBody.angularVelocity = Vector3.zero;
-            _rBody.velocity = Vector3.zero;
-            transform.localPosition = new Vector3( 0, 0.5f, 0);
-        }
+        t = 30f;
         
-        target.localPosition = new Vector3(Random.value * 8 - 4, 0.5f, Random.value * 8 - 4);
+        _rBody.angularVelocity = Vector3.zero;
+        _rBody.velocity = Vector3.zero;
+        transform.localPosition = new Vector3( -4, 1f, -1);
+        
+        target.localPosition = new Vector3(4,1f,-1);
     }
 
     //Deze method houd bij welke gegevens hij moet onthouden dat word gebruikt om een vedere beslissing te maken (dus action). 
@@ -38,7 +48,6 @@ public class SeekerAgent : Agent
         sensor.AddObservation(_rBody.velocity.x);
         sensor.AddObservation(_rBody.velocity.z);
     }
-
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         var controlSignal = Vector3.zero;
@@ -48,20 +57,30 @@ public class SeekerAgent : Agent
         
         
         var distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
-
-        if (distanceToTarget < 2f)
+        
+        if (t <= 0 )
         {
+            var reward = (distanceToTarget / 10f) * -1f;
+            print("Time ran out");
+            Debug.Log(reward);
+            SetReward(reward);
+            EndEpisode();   
+        }
+        
+        if (distanceToTarget < 1.42f)
+        {
+            print("+1");
             SetReward(1f);
             EndEpisode();
         }
 
         else if (transform.localPosition.y < 0)
         {
+            print("-1");
+            SetReward(-1f);
             EndEpisode();   
         }
     }   
-    
-    
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var continuousActionsOut = actionsOut.ContinuousActions;
