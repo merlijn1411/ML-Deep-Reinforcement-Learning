@@ -7,14 +7,15 @@ using UnityEngine;
 public class SeekerAgent : Agent
 {
     [SerializeField] private Transform target;
-    [SerializeField] private float forceMultiplier = 10f;
+    [SerializeField] private float walkSpeed;
+    [SerializeField] private float rotationSpeed;
     
     [SerializeField] private float t;
     [SerializeField] private TextMeshProUGUI timeCounter;
     
     private Rigidbody _rBody;
     
-    private void Start()
+    public override void Initialize()
     {
         _rBody = GetComponent<Rigidbody>();
     }
@@ -30,10 +31,10 @@ public class SeekerAgent : Agent
     {
         t = 30f;
         
-        _rBody.angularVelocity = Vector3.zero;
         _rBody.velocity = Vector3.zero;
-        transform.localPosition = new Vector3( -4, 1f, -1);
+        _rBody.angularVelocity = Vector3.zero;
         
+        transform.localPosition = new Vector3( -4, 1f, -1);
         target.localPosition = new Vector3(4,1f,-1);
     }
 
@@ -42,49 +43,71 @@ public class SeekerAgent : Agent
     {
         //Target en agent position
         sensor.AddObservation(target.localPosition);
-        sensor.AddObservation(this.transform.localPosition);
+        sensor.AddObservation(transform.localPosition);
         
         //Agent velocity
         sensor.AddObservation(_rBody.velocity.x);
         sensor.AddObservation(_rBody.velocity.z);
     }
+
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        //Dit is inprencipe het zelfde als Input.GetAxis zodat de Machine kan leren bewegen.
         var controlSignal = Vector3.zero;
         controlSignal.x = actionBuffers.ContinuousActions[0];
         controlSignal.z = actionBuffers.ContinuousActions[1];
-        _rBody.AddForce(controlSignal * forceMultiplier);
+        controlSignal.Normalize();
         
+        transform.Translate(controlSignal * walkSpeed, Space.World);
+
+        FaceRotate(controlSignal);
         
         var distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         
-        if (t <= 0 )
+        TimerReachedZeroReward(distanceToTarget);
+        TargetDistanceCheck(distanceToTarget);
+        AgentFellOff();
+    }
+
+    private void FaceRotate(Vector3 controlSignal)
+    {
+        if (controlSignal == Vector3.zero) return;
+        var toRotationX = Quaternion.LookRotation(controlSignal, Vector3.up);
+    
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotationX, rotationSpeed);
+    }
+
+    private void TimerReachedZeroReward(float distanceToTarget)
+    {
+        if (t <= 0) //als de teller op nul komt beindigd het de episode
         {
-            var reward = (distanceToTarget / 10f) * -1f;
-            print("Time ran out");
+            var reward = (distanceToTarget / 10f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
             Debug.Log(reward);
             SetReward(reward);
             EndEpisode();   
         }
-        
-        if (distanceToTarget < 1.42f)
-        {
-            print("+1");
-            SetReward(1f);
-            EndEpisode();
-        }
+    } 
 
-        else if (transform.localPosition.y < 0)
-        {
-            print("-1");
-            SetReward(-1f);
-            EndEpisode();   
-        }
-    }   
+    private void TargetDistanceCheck(float distanceToTarget)
+    {
+        if (!(distanceToTarget < 1f)) return;
+        print("+1");
+        SetReward(1f);
+        EndEpisode();
+    }
+
+    private void AgentFellOff()
+    {
+        if (!(transform.localPosition.y < 0)) return;
+        print("-1");
+        SetReward(-1f);
+        EndEpisode();
+    }
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = Input.GetAxis("Horizontal");
-        continuousActionsOut[1] = Input.GetAxis("Vertical");
+        continuousActionsOut[0] = Mathf.Lerp(0,Input.GetAxis("Horizontal"),0.8f);
+        continuousActionsOut[1] = Mathf.Lerp(0,Input.GetAxis("Vertical"),0.8f);
     }
 }
+
