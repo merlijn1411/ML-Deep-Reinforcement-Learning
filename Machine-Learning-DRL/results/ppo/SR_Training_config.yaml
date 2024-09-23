@@ -3,27 +3,27 @@ behaviors:
     trainer_type: ppo
     ##init_path: results\ppo\SR\checkpoint.pt #alleen gebruiken als je een file path naar de checkpoint.pt hebt.
     keep_checkpoints: 5
-    checkpoint_interval: 500000
-    max_steps: 10000000
+    checkpoint_interval: 5000000
+    max_steps: 100000
     threaded: true
     time_horizon: 64
     summary_freq: 5000
 
     hyperparameters:
-      batch_size:   1024 
+      batch_size:   2048 
       buffer_size:  20480 
       learning_rate: 0.0003
-      beta: 0.001
-      epsilon: 0.2
+      beta: 0.003
+      epsilon: 0.15
       lambd: 0.95
-      num_epoch: 3
-      learning_rate_schedule: linear
+      num_epoch: 4
+      learning_rate_schedule: constant
       beta_schedule: constant
-      epsilon_schedule: linear
+      epsilon_schedule: constant
 
     network_settings:
-      normalize: false
-      hidden_units: 128
+      normalize: true
+      hidden_units: 256
       num_layers: 2
       vis_encode_type: simple
       encoding_size: 64
@@ -43,36 +43,40 @@ behaviors:
     
     self_play: 
       save_steps: 20000
+      swap_steps: 10000
+      play_against_latest_model_ratio: 0.5
 environment_parameters:
   TrainingArea: 
     # dit is voor de moeilijkheidsgraad van de taak geleidelijk verhogen zodat de agent beter presteert.  
     curriculum: 
       - name: Easy
         completion_criteria:
-          measure: progress
+          measure: "reward"
           behavior: Seeker
           signal_smoothing: true
-          min_lesson_length: 100
+          min_lesson_length: 2
           threshold: 0.5  # De reward of prestatie die de agent moet bereiken om naar de volgende les te gaan
+          require_reset: true
           parameters:
             block_distance: 2.0  # afstand per level.
         value: 0.2
       - name: Medium
         completion_criteria:
-          measure: progress
+          measure: "reward"
           behavior: Seeker
           signal_smoothing: true
-          min_lesson_length: 100
+          min_lesson_length: 4
           threshold: 0.75  # Grotere prestatie vereist om door te gaan
+          require_reset: true
           parameters:
             block_distance: 4.0  
         value: 0.4
       - name: Hard
         completion_criteria:
-          measure: progress
+          measure: "reward"
           behavior: Seeker
           signal_smoothing: true
-          min_lesson_length: 100
+          min_lesson_length: 6
           threshold: 1
           require_reset: true
           parameters:
