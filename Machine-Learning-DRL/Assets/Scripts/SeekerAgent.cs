@@ -62,11 +62,11 @@ public class SeekerAgent : Agent
         if (movement == 4) { controlSignal.z = 1; }
         
         //_rBody.AddForce(new Vector3(movement * walkSpeed, 0, movement * walkSpeed));
-        //controlSignal.Normalize();
+        controlSignal.Normalize();
         
         transform.Translate(controlSignal * walkSpeed, Space.World);
 
-        //FaceRotate(controlSignal);
+        FaceRotate(controlSignal);
         
         var distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         

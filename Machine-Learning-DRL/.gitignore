@@ -8,7 +8,6 @@
 /[Uu]ser[Ss]ettings/
 
 # Output Artifacts
-/results
 /models
 
 # Training environments
