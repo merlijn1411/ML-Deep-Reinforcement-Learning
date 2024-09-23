@@ -8,6 +8,8 @@
 /[Uu]ser[Ss]ettings/
 /Lib/
 /Scripts/
+/SeekerTraining/
+/Seeker/
 
 # Output Artifacts
 /models
