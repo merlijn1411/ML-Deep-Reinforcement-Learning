@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 6068566583776092059}
   - component: {fileID: 2960987499300331142}
   - component: {fileID: 4287131616833734862}
+  - component: {fileID: 5781580754807777930}
   m_Layer: 0
   m_Name: Seeker
   m_TagString: Untagged
@@ -263,9 +264,10 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   target: {fileID: 1664036898259852394}
-  wall: {fileID: 5316085584904607709}
   walkSpeed: 0.01
   rotationSpeed: 30
+  countDown: {fileID: 1605949945867994412}
+  previousDistance: 0
   onNewEpisode:
     m_PersistentCalls:
       m_Calls:
@@ -281,9 +283,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  countDown: {fileID: 1605949945867994412}
-  previousDistance: 0
-  previousDistanceToTarget: 0
 --- !u!114 &2960987499300331142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,7 +319,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 7aab7354fe35b144d8ea740f989883f6, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 15cde719e58311440a933b438ee6f11c, type: 3}
   m_InferenceDevice: 3
   m_BehaviorType: 0
   m_BehaviorName: Seeker
@@ -328,6 +327,34 @@ MonoBehaviour:
   m_UseChildSensors: 1
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
+--- !u!114 &5781580754807777930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447879697318428990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bb6b867a41448888c1cd4f99643ad71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SensorName: RayPerceptionSensor
+  m_DetectableTags:
+  - Wall
+  - Runner
+  m_RaysPerDirection: 5
+  m_MaxRayDegrees: 49
+  m_SphereCastRadius: 0.5
+  m_RayLength: 20
+  m_RayLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967291
+  m_ObservationStacks: 1
+  rayHitColor: {r: 1, g: 0, b: 0, a: 1}
+  rayMissColor: {r: 1, g: 1, b: 1, a: 1}
+  m_StartVerticalOffset: 0
+  m_EndVerticalOffset: 0
 --- !u!1 &1850596259830648716
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,7 +469,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f597aace795bf534aa35ae550e584936, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  t: 30
+  t: 60
 --- !u!1 &3655017665823324352
 GameObject:
   m_ObjectHideFlags: 0
