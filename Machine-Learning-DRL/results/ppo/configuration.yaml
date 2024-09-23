@@ -10,6 +10,7 @@ behaviors:
       epsilon: 0.2
       lambd: 0.95
       num_epoch: 3
+      shared_critic: false
       learning_rate_schedule: linear
       beta_schedule: constant
       epsilon_schedule: linear
@@ -87,7 +88,7 @@ environment_parameters:
     - value:
         sampler_type: constant
         sampler_parameters:
-          seed: 5880
+          seed: 6080
           value: 0.2
       name: Easy
       completion_criteria:
@@ -100,7 +101,7 @@ environment_parameters:
     - value:
         sampler_type: constant
         sampler_parameters:
-          seed: 5881
+          seed: 6081
           value: 0.4
       name: Medium
       completion_criteria:
@@ -113,7 +114,7 @@ environment_parameters:
     - value:
         sampler_type: constant
         sampler_parameters:
-          seed: 5882
+          seed: 6082
           value: 0.6
       name: Hard
       completion_criteria:
