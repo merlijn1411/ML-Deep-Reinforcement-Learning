@@ -1,3 +1,4 @@
+using System;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -71,7 +72,6 @@ public class SeekerAgent : Agent
         var distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         
         TimerReachedZeroReward(distanceToTarget);
-        TargetDistanceCheck(distanceToTarget);
         AgentFellOff();
     }
 
@@ -93,13 +93,15 @@ public class SeekerAgent : Agent
             EndEpisode();   
         }
     } 
-
-    private void TargetDistanceCheck(float distanceToTarget)
+    
+    private void OnCollisionEnter(Collision other)
     {
-        if (!(distanceToTarget < 1f)) return;
-        print("+1");
-        SetReward(1f);
-        EndEpisode();
+        if (other.gameObject.CompareTag($"Runner"))
+        {
+            print("+1");
+            SetReward(1f);
+            EndEpisode();
+        }
     }
 
     private void AgentFellOff()
