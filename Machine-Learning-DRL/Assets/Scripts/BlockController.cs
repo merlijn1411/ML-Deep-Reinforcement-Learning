@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BlockController : MonoBehaviour
 {
-    [SerializeField] private float defaultBlockDistance = 2.0f;
+    [SerializeField] private float defaultBlockDistance = 6.0f;
     private float _blockDistance;
 
     [SerializeField] private GameObject seekerAgent;

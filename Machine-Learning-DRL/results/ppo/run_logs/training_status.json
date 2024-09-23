@@ -1,7 +1,7 @@
 {
     "metadata": {
         "stats_format_version": "0.3.0",
-        "mlagents_version": "0.29.0",
+        "mlagents_version": "0.30.0",
         "torch_version": "2.4.1+cpu"
     },
     "SR": {
@@ -59,6 +59,68 @@
             "creation_time": 1726569473.9760458,
             "auxillary_file_paths": [
                 "results\\ppo\\SR\\SR-50658.pt"
+            ]
+        }
+    },
+    "TrainingArea": {
+        "lesson_num": 0
+    },
+    "Seeker": {
+        "elo": -445.4761710760827,
+        "checkpoints": [
+            {
+                "steps": 1127516,
+                "file_path": "results\\ppo\\Seeker\\Seeker-1127516.onnx",
+                "reward": -1.0,
+                "creation_time": 1727113584.9005094,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Seeker\\Seeker-1127516.pt"
+                ]
+            },
+            {
+                "steps": 1127516,
+                "file_path": "results\\ppo\\Seeker\\Seeker-1127516.onnx",
+                "reward": null,
+                "creation_time": 1727114201.2403834,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Seeker\\Seeker-1127516.pt"
+                ]
+            },
+            {
+                "steps": 1136540,
+                "file_path": "results\\ppo\\Seeker\\Seeker-1136540.onnx",
+                "reward": -1.4650000035762787,
+                "creation_time": 1727117365.7556667,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Seeker\\Seeker-1136540.pt"
+                ]
+            },
+            {
+                "steps": 1154108,
+                "file_path": "results\\ppo\\Seeker\\Seeker-1154108.onnx",
+                "reward": -1.4650000035762787,
+                "creation_time": 1727117560.176662,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Seeker\\Seeker-1154108.pt"
+                ]
+            },
+            {
+                "steps": 1158620,
+                "file_path": "results\\ppo\\Seeker\\Seeker-1158620.onnx",
+                "reward": -1.4650000035762787,
+                "creation_time": 1727117706.3245044,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Seeker\\Seeker-1158620.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 1158620,
+            "file_path": "results\\ppo\\Seeker.onnx",
+            "reward": -1.4650000035762787,
+            "creation_time": 1727117706.3245044,
+            "auxillary_file_paths": [
+                "results\\ppo\\Seeker\\Seeker-1158620.pt"
             ]
         }
     }
