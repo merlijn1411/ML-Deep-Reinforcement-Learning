@@ -1,14 +1,14 @@
 default_settings: null
 behaviors:
-  SR:
+  Seeker:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 512
-      buffer_size: 2048
+      batch_size: 1024
+      buffer_size: 20480
       learning_rate: 0.0003
-      beta: 0.0005
+      beta: 0.001
       epsilon: 0.2
-      lambd: 0.99
+      lambd: 0.95
       num_epoch: 3
       learning_rate_schedule: linear
       beta_schedule: constant
@@ -35,10 +35,23 @@ behaviors:
           memory: null
           goal_conditioning_type: hyper
           deterministic: false
-    init_path: results\ppo\SR\checkpoint.pt
+      curiosity:
+        gamma: 0.995
+        strength: 0.01
+        network_settings:
+          normalize: false
+          hidden_units: 128
+          num_layers: 2
+          vis_encode_type: simple
+          memory: null
+          goal_conditioning_type: hyper
+          deterministic: false
+        learning_rate: 0.0003
+        encoding_size: null
+    init_path: null
     keep_checkpoints: 5
     checkpoint_interval: 500000
-    max_steps: 500000
+    max_steps: 10000000
     time_horizon: 64
     summary_freq: 5000
     threaded: true
@@ -68,7 +81,48 @@ engine_settings:
   target_frame_rate: -1
   capture_frame_rate: 60
   no_graphics: false
-environment_parameters: null
+environment_parameters:
+  TrainingArea:
+    curriculum:
+    - value:
+        sampler_type: constant
+        sampler_parameters:
+          seed: 5880
+          value: 0.2
+      name: Easy
+      completion_criteria:
+        behavior: Seeker
+        measure: progress
+        min_lesson_length: 100
+        signal_smoothing: true
+        threshold: 0.5
+        require_reset: false
+    - value:
+        sampler_type: constant
+        sampler_parameters:
+          seed: 5881
+          value: 0.4
+      name: Medium
+      completion_criteria:
+        behavior: Seeker
+        measure: progress
+        min_lesson_length: 100
+        signal_smoothing: true
+        threshold: 0.75
+        require_reset: false
+    - value:
+        sampler_type: constant
+        sampler_parameters:
+          seed: 5882
+          value: 0.6
+      name: Hard
+      completion_criteria:
+        behavior: Seeker
+        measure: progress
+        min_lesson_length: 100
+        signal_smoothing: true
+        threshold: 1.0
+        require_reset: true
 checkpoint_settings:
   run_id: ppo
   initialize_from: null

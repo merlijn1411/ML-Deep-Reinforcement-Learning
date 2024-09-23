@@ -1,8 +1,8 @@
-using TMPro;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SeekerAgent : Agent
 {
@@ -10,32 +10,30 @@ public class SeekerAgent : Agent
     [SerializeField] private float walkSpeed;
     [SerializeField] private float rotationSpeed;
     
-    [SerializeField] private float t;
-    [SerializeField] private TextMeshProUGUI timeCounter;
-    
     private Rigidbody _rBody;
+
+    [SerializeField] private UnityEvent onNewEpisode;
+
+    [SerializeField] private Timer countDown;
     
     public override void Initialize()
     {
         _rBody = GetComponent<Rigidbody>();
     }
-
-    private void Update()
-    {
-        t -= 1f * Time.deltaTime;
-        var tCounter = Mathf.Ceil(t);
-        timeCounter.text = $"{tCounter}";
-    }
-
     public override void OnEpisodeBegin()
     {
-        t = 30f;
+        countDown.t = 30f;
         
         _rBody.velocity = Vector3.zero;
         _rBody.angularVelocity = Vector3.zero;
         
         transform.localPosition = new Vector3( -4, 1f, -1);
+        transform.localRotation = new Quaternion();
+        
         target.localPosition = new Vector3(4,1f,-1);
+        target.localRotation = new Quaternion();
+        
+        onNewEpisode.Invoke();
     }
 
     //Deze method houd bij welke gegevens hij moet onthouden dat word gebruikt om een vedere beslissing te maken (dus action). 
@@ -54,13 +52,21 @@ public class SeekerAgent : Agent
     {
         //Dit is inprencipe het zelfde als Input.GetAxis zodat de Machine kan leren bewegen.
         var controlSignal = Vector3.zero;
-        controlSignal.x = actionBuffers.ContinuousActions[0];
-        controlSignal.z = actionBuffers.ContinuousActions[1];
-        controlSignal.Normalize();
+
+        var movement = actionBuffers.DiscreteActions[0];
+        var jump = actionBuffers.DiscreteActions[1];
+
+        if (movement == 1) { controlSignal.x = -1; }
+        if (movement == 2) { controlSignal.x = 1; }
+        if (movement == 3) { controlSignal.z = -1; }
+        if (movement == 4) { controlSignal.z = 1; }
+        
+        //_rBody.AddForce(new Vector3(movement * walkSpeed, 0, movement * walkSpeed));
+        //controlSignal.Normalize();
         
         transform.Translate(controlSignal * walkSpeed, Space.World);
 
-        FaceRotate(controlSignal);
+        //FaceRotate(controlSignal);
         
         var distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         
@@ -79,7 +85,7 @@ public class SeekerAgent : Agent
 
     private void TimerReachedZeroReward(float distanceToTarget)
     {
-        if (t <= 0) //als de teller op nul komt beindigd het de episode
+        if (countDown.t <= 0) //als de teller op nul komt beindigd het de episode
         {
             var reward = (distanceToTarget / 10f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
             Debug.Log(reward);
