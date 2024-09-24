@@ -1,0 +1,33 @@
+{
+    "TrainingArea": {
+        "lesson_num": 2
+    },
+    "Seeker": {
+        "elo": 880.913989451366,
+        "checkpoints": [
+            {
+                "steps": 100096,
+                "file_path": "results\\Seekerwall12\\Seeker\\Seeker-100096.onnx",
+                "reward": 4.866251593455672,
+                "creation_time": 1727122642.0339713,
+                "auxillary_file_paths": [
+                    "results\\Seekerwall12\\Seeker\\Seeker-100096.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 100096,
+            "file_path": "results\\Seekerwall12\\Seeker.onnx",
+            "reward": 4.866251593455672,
+            "creation_time": 1727122642.0339713,
+            "auxillary_file_paths": [
+                "results\\Seekerwall12\\Seeker\\Seeker-100096.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.29.0",
+        "torch_version": "2.4.1+cpu"
+    }
+}

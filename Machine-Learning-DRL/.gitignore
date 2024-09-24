@@ -1,7 +1,4 @@
 # This .gitignore file should be placed at the root of your Unity project directory
-#
-# Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
-#
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -9,6 +6,19 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/Lib/
+/Scripts/
+/SeekerTraining/
+/Seeker/
+
+# Output Artifacts
+/models
+
+# Training environments
+/envs
+
+# Environemnt logfile
+*Project.log
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
@@ -46,6 +56,29 @@ ExportedObj/
 *.mdb
 *.opendb
 *.VC.db
+
+# pytest cache
+*.pytest_cache/
+
+# Ignore compiled protobuf files.
+*Grpc.Tools*
+
+# Ignore PyPi build files.
+dist/
+build/
+
+# Generated doc folders
+/docs/html
+
+# Python virtual environment
+venv/
+.mypy_cache/
+
+# Code coverage report
+.coverage
+coverage.xml
+/htmlcov/
+
 
 # Unity3D generated meta files
 *.pidb.meta
