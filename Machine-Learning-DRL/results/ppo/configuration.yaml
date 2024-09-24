@@ -3,20 +3,20 @@ behaviors:
   Seeker:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 1024
+      batch_size: 2048
       buffer_size: 20480
       learning_rate: 0.0003
-      beta: 0.001
-      epsilon: 0.2
+      beta: 0.003
+      epsilon: 0.15
       lambd: 0.95
-      num_epoch: 3
+      num_epoch: 4
       shared_critic: false
-      learning_rate_schedule: linear
+      learning_rate_schedule: constant
       beta_schedule: constant
-      epsilon_schedule: linear
+      epsilon_schedule: constant
     network_settings:
-      normalize: false
-      hidden_units: 128
+      normalize: true
+      hidden_units: 256
       num_layers: 2
       vis_encode_type: simple
       memory:
@@ -51,15 +51,15 @@ behaviors:
         encoding_size: null
     init_path: null
     keep_checkpoints: 5
-    checkpoint_interval: 500000
-    max_steps: 10000000
+    checkpoint_interval: 5000000
+    max_steps: 1000000
     time_horizon: 64
     summary_freq: 5000
     threaded: true
     self_play:
       save_steps: 20000
       team_change: 100000
-      swap_steps: 2000
+      swap_steps: 10000
       window: 10
       play_against_latest_model_ratio: 0.5
       initial_elo: 1200.0
@@ -78,7 +78,7 @@ engine_settings:
   width: 84
   height: 84
   quality_level: 5
-  time_scale: 20
+  time_scale: 1.0
   target_frame_rate: -1
   capture_frame_rate: 60
   no_graphics: false
@@ -88,39 +88,39 @@ environment_parameters:
     - value:
         sampler_type: constant
         sampler_parameters:
-          seed: 6080
+          seed: 2640
           value: 0.2
       name: Easy
       completion_criteria:
         behavior: Seeker
-        measure: progress
-        min_lesson_length: 100
+        measure: reward
+        min_lesson_length: 2
         signal_smoothing: true
         threshold: 0.5
-        require_reset: false
+        require_reset: true
     - value:
         sampler_type: constant
         sampler_parameters:
-          seed: 6081
+          seed: 2641
           value: 0.4
       name: Medium
       completion_criteria:
         behavior: Seeker
-        measure: progress
-        min_lesson_length: 100
+        measure: reward
+        min_lesson_length: 4
         signal_smoothing: true
         threshold: 0.75
-        require_reset: false
+        require_reset: true
     - value:
         sampler_type: constant
         sampler_parameters:
-          seed: 6082
+          seed: 2642
           value: 0.6
       name: Hard
       completion_criteria:
         behavior: Seeker
-        measure: progress
-        min_lesson_length: 100
+        measure: reward
+        min_lesson_length: 6
         signal_smoothing: true
         threshold: 1.0
         require_reset: true
@@ -129,7 +129,7 @@ checkpoint_settings:
   initialize_from: null
   load_model: false
   resume: true
-  force: false
+  force: true
   train_model: false
   inference: false
   results_dir: results

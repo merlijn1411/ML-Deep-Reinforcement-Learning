@@ -11,7 +11,8 @@ public class SeekerAgent : Agent
     [SerializeField] private float rotationSpeed;
     [SerializeField] private Timer countDown;
     [SerializeField] private float previousDistance;
-    
+    [SerializeField] private float distanceToTarget;
+
     private Rigidbody _rBody;
 
     [SerializeField] private UnityEvent onNewEpisode;
@@ -24,7 +25,7 @@ public class SeekerAgent : Agent
     }
     public override void OnEpisodeBegin()
     {
-        countDown.t = 60f;
+        countDown.t = 15f;
         
         _rBody.velocity = Vector3.zero;
         _rBody.angularVelocity = Vector3.zero;
@@ -89,19 +90,18 @@ public class SeekerAgent : Agent
     {
         if (countDown.t <= 0) //als de teller op nul komt beindigd het de episode
         {
-            var reward = (distanceToTarget / 10f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
-            Debug.Log(reward);
+            var reward = (distanceToTarget / 20f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
             SetReward(reward);
             EndEpisode();
         }
     }
     private void DistanceToTarget()
     {
-        float distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
+        distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         // Reward for reducing distance to the cube
         if (previousDistance > distanceToTarget)
         {
-            AddReward(0.01f); // Give a small positive reward for getting closer
+            AddReward(0.02f); // Give a small positive reward for getting closer
         }
         previousDistance = distanceToTarget;
     }
@@ -126,7 +126,6 @@ public class SeekerAgent : Agent
     private void AgentFellOff()
     {
         if (!(transform.localPosition.y < 0)) return;
-        print("-1");
         SetReward(-1f);
         EndEpisode();
     }
