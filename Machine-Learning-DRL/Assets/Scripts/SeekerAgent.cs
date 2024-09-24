@@ -1,3 +1,4 @@
+using System;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -25,7 +26,7 @@ public class SeekerAgent : Agent
     }
     public override void OnEpisodeBegin()
     {
-        countDown.t = 15f;
+        countDown.t = 30f;
         
         _rBody.velocity = Vector3.zero;
         _rBody.angularVelocity = Vector3.zero;
@@ -76,6 +77,7 @@ public class SeekerAgent : Agent
         TimerReachedZeroReward(distanceToTarget);
         AgentFellOff();
         DistanceToTarget();
+        SetReward(-0.001f);
     }
 
     private void FaceRotate(Vector3 controlSignal)
@@ -105,12 +107,9 @@ public class SeekerAgent : Agent
         }
         previousDistance = distanceToTarget;
     }
-    private void RewardForPlatform()
+    private void MazeRewards()
     {
-        if (transform.localPosition.y > 0)
-        {
-            AddReward(0.001f); // Small reward for staying on the platform
-        }
+        
     }
 
     private void OnCollisionEnter(Collision other)
@@ -120,6 +119,19 @@ public class SeekerAgent : Agent
             print("+1");
             SetReward(1f);
             EndEpisode();
+        }        
+        if (other.gameObject.CompareTag($"Wall"))
+        {
+            SetReward(-0.01f);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag($"RewardPoint"))
+        {
+            SetReward(0.3f);
+            Destroy(other.gameObject);
         }
     }
 
