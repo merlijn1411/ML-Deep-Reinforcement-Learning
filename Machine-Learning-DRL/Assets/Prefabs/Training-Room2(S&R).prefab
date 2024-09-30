@@ -274,7 +274,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultBlockDistance: 2
   seekerAgent: {fileID: 6561970492190673801}
-  runnerAgent: {fileID: 0}
+  runnerAgent: {fileID: 6469306956414164953}
 --- !u!1 &4306293470717317282
 GameObject:
   m_ObjectHideFlags: 0
@@ -679,6 +679,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 3778578700170017222}
+    - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
       propertyPath: countDown
       value: 
       objectReference: {fileID: 1605949945867994412}
@@ -723,7 +727,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1410124710232409093, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
       propertyPath: m_Name
-      value: Runner (1)
+      value: Runner
       objectReference: {fileID: 0}
     - target: {fileID: 9090069289781518874, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
       propertyPath: m_LocalPosition.x
@@ -773,5 +777,10 @@ PrefabInstance:
 --- !u!4 &3778578700170017222 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9090069289781518874, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
+  m_PrefabInstance: {fileID: 5356570602937310172}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6469306956414164953 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1410124710232409093, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
   m_PrefabInstance: {fileID: 5356570602937310172}
   m_PrefabAsset: {fileID: 0}

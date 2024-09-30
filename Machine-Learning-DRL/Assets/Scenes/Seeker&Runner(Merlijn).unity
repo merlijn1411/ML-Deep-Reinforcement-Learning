@@ -528,6 +528,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Training-Room2(S&R) (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 3655017665823324352, guid: 81194d4ecfd8c41418b6c5cf6e91fe85, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5526296803940359628, guid: 81194d4ecfd8c41418b6c5cf6e91fe85, type: 3}
       propertyPath: m_LocalPosition.x
       value: 55

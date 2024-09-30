@@ -1,9 +1,7 @@
-using System;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class SeekerAgent : Agent
 {
@@ -11,14 +9,10 @@ public class SeekerAgent : Agent
     [SerializeField] private float walkSpeed;
     [SerializeField] private float rotationSpeed;
     [SerializeField] private Timer countDown;
-    [SerializeField] private float previousDistance;
-    [SerializeField] private float distanceToTarget;
+    private float _previousDistance;
+    private float _distanceToTarget;
 
     private Rigidbody _rBody;
-
-    [SerializeField] private UnityEvent onNewEpisode;
-
-    
     
     public override void Initialize()
     {
@@ -26,18 +20,8 @@ public class SeekerAgent : Agent
     }
     public override void OnEpisodeBegin()
     {
-        countDown.t = 30f;
-        
         _rBody.velocity = Vector3.zero;
         _rBody.angularVelocity = Vector3.zero;
-        
-        transform.localPosition = new Vector3( -6, 1f, -1);
-        transform.localRotation = new Quaternion();
-        
-        target.localPosition = new Vector3(4,1f,-1);
-        target.localRotation = new Quaternion();
-        
-        onNewEpisode.Invoke();
     }
 
 
@@ -71,10 +55,12 @@ public class SeekerAgent : Agent
         transform.Translate(controlSignal * walkSpeed, Space.World);
 
         FaceRotate(controlSignal);
+        _distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         
-        var distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
+        TimerReachedZeroReward();
         
-        TimerReachedZeroReward(distanceToTarget);
+        VelocityController();
+        
         AgentFellOff();
         DistanceToTarget();
         SetReward(-0.001f);
@@ -88,25 +74,31 @@ public class SeekerAgent : Agent
         transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotationX, rotationSpeed);
     }
 
-    private void TimerReachedZeroReward(float distanceToTarget)
+    public void TimerReachedZeroReward()
     {
         if (countDown.t <= 0) //als de teller op nul komt beindigd het de episode
         {
-            var reward = (distanceToTarget / 20f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
+            var reward = (_distanceToTarget / 20f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
             SetReward(reward);
             EndEpisode();
         }
     }
     private void DistanceToTarget()
     {
-        distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         // Reward for reducing distance to the cube
-        if (previousDistance > distanceToTarget)
+        if (_previousDistance > _distanceToTarget)
         {
             AddReward(0.02f); // Give a small positive reward for getting closer
         }
-        previousDistance = distanceToTarget;
+        _previousDistance = _distanceToTarget;
     }
+    
+    private void VelocityController()
+    {
+        if (_rBody.velocity.magnitude > 1f)
+            _rBody.velocity = Vector3.ClampMagnitude(_rBody.velocity, 1);
+    }
+    
     private void MazeRewards()
     {
         
@@ -116,7 +108,7 @@ public class SeekerAgent : Agent
     {
         if (other.gameObject.CompareTag($"Runner"))
         {
-            print("+1");
+            print("Seeker: +1");
             SetReward(1f);
             EndEpisode();
         }        
