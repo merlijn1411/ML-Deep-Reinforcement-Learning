@@ -3,7 +3,7 @@ behaviors:
     trainer_type: ppo
     ##init_path: results\ppo\SR\checkpoint.pt #alleen gebruiken als je een file path naar de checkpoint.pt hebt.
     keep_checkpoints: 5
-    checkpoint_interval: 5000000
+    checkpoint_interval: 500000
     max_steps: 1000000
     threaded: true
     time_horizon: 64
