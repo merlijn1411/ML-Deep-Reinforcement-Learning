@@ -4,7 +4,7 @@ public class Timer : MonoBehaviour
 {
     private TextMesh _timeMesh;
     //public static Timer Instance;
-    public float t;
+    [HideInInspector]public float t;
 
     private void Start()
     {

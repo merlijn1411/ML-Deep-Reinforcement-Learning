@@ -4,6 +4,7 @@ using UnityEngine.Events;
 
 public class BlockController : MonoBehaviour
 {
+    [SerializeField] private float timer;
     [SerializeField] private float defaultBlockDistance = 6.0f;
     private float _blockDistance;
 
@@ -20,7 +21,7 @@ public class BlockController : MonoBehaviour
 
     public void BeginEpisodePosition()
     {
-        countDown.t = 30f; //reset de timer
+        countDown.t = timer; //reset de timer
         
         // deze is verbonden met het Curriculum system in het yaml file.
         _blockDistance = Academy.Instance.EnvironmentParameters.GetWithDefault("block_distance", defaultBlockDistance);

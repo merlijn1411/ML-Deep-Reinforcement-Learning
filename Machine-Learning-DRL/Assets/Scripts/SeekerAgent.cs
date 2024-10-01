@@ -95,8 +95,8 @@ public class SeekerAgent : Agent
     
     private void VelocityController()
     {
-        if (_rBody.velocity.magnitude > 1f)
-            _rBody.velocity = Vector3.ClampMagnitude(_rBody.velocity, 1);
+        if (_rBody.velocity.magnitude > 10f)
+            _rBody.velocity = Vector3.ClampMagnitude(_rBody.velocity, 10);
     }
     
     private void MazeRewards()
