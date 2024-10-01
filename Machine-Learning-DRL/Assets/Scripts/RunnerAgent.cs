@@ -2,6 +2,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class RunnerAgent : Agent
 {
@@ -9,10 +10,10 @@ public class RunnerAgent : Agent
     [SerializeField] private float walkSpeed;
     [SerializeField] private float rotationSpeed;
     [SerializeField] private Timer countDown;
-    private float _previousDistance; 
-    private float _distanceToTarget;
 
     private Rigidbody _rBody;
+
+    [SerializeField] private UnityEvent onNewEpisode;
     
     public override void Initialize()
     {
@@ -54,15 +55,11 @@ public class RunnerAgent : Agent
         transform.Translate(controlSignal * walkSpeed, Space.World);
 
         FaceRotate(controlSignal);
-        _distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
 
         VelocityController();
         
-        TimerReachedZeroReward();
-        
         AgentFellOff();
-        DistanceToTarget();
-        SetReward(-0.001f);
+        SetReward(0.001f);
     }
     
     private void FaceRotate(Vector3 controlSignal)
@@ -78,29 +75,19 @@ public class RunnerAgent : Agent
         SetReward(1f);
         EndEpisode();
     }
-    
-    private void DistanceToTarget()
-    {
-        // Reward for reducing distance to the cube
-        if (_previousDistance > _distanceToTarget)
-        {
-            AddReward(-0.02f); // Give a small negative reward for getting closer to the target
-        }
-        _previousDistance = _distanceToTarget;
-    }
 
     private void VelocityController()
     {
-        if (_rBody.velocity.magnitude > 1f)
-            _rBody.velocity = Vector3.ClampMagnitude(_rBody.velocity, 1);
+        if (_rBody.velocity.magnitude > 10f)
+            _rBody.velocity = Vector3.ClampMagnitude(_rBody.velocity, 10);
     }
     
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag($"Seeker"))
         {
-            print("Runner: -1");
             SetReward(-1f);
+            onNewEpisode.Invoke();
             EndEpisode();
         }        
         if (other.gameObject.CompareTag($"Wall"))
@@ -113,6 +100,7 @@ public class RunnerAgent : Agent
     {
         if (!(transform.localPosition.y < 0)) return;
         SetReward(-1f);
+        onNewEpisode.Invoke();
         EndEpisode();
     }
 }

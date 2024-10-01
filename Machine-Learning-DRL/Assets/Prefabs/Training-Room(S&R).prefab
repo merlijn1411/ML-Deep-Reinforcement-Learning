@@ -608,12 +608,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5644465438902096110}
     - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
       propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 8183158964375057244}
     - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
       propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: BeginEpisodePosition
+      objectReference: {fileID: 0}
+    - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: BlockController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 728898668092598772, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6616785558688212005, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
       propertyPath: m_Name
@@ -666,9 +686,21 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5644465438902096110}
     - target: {fileID: 8384137217555771918, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8384137217555771918, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8384137217555771918, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
       propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 8183158964375057244}
+    - target: {fileID: 8384137217555771918, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
+      propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8384137217555771918, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
       propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: BeginEpisodePosition

@@ -2,6 +2,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SeekerAgent : Agent
 {
@@ -13,6 +14,8 @@ public class SeekerAgent : Agent
     private float _distanceToTarget;
 
     private Rigidbody _rBody;
+    
+    [SerializeField] private UnityEvent onNewEpisode;
     
     public override void Initialize()
     {
@@ -57,12 +60,9 @@ public class SeekerAgent : Agent
         FaceRotate(controlSignal);
         _distanceToTarget = Vector3.Distance(transform.localPosition, target.localPosition);
         
-        TimerReachedZeroReward();
-        
         VelocityController();
         
         AgentFellOff();
-        DistanceToTarget();
         SetReward(-0.001f);
     }
 
@@ -76,12 +76,12 @@ public class SeekerAgent : Agent
 
     public void TimerReachedZeroReward()
     {
-        if (countDown.t <= 0) //als de teller op nul komt beindigd het de episode
-        {
-            var reward = (_distanceToTarget / 20f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
-            SetReward(reward);
-            EndEpisode();
-        }
+        
+        var reward = (_distanceToTarget / 20f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
+        SetReward(reward);
+        DistanceToTarget();
+        EndEpisode();
+        
     }
     private void DistanceToTarget()
     {
@@ -98,18 +98,13 @@ public class SeekerAgent : Agent
         if (_rBody.velocity.magnitude > 10f)
             _rBody.velocity = Vector3.ClampMagnitude(_rBody.velocity, 10);
     }
-    
-    private void MazeRewards()
-    {
-        
-    }
 
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag($"Runner"))
         {
-            print("Seeker: +1");
             SetReward(1f);
+            onNewEpisode.Invoke();
             EndEpisode();
         }        
         if (other.gameObject.CompareTag($"Wall"))
@@ -131,12 +126,14 @@ public class SeekerAgent : Agent
     {
         if (!(transform.localPosition.y < 0)) return;
         SetReward(-1f);
+        onNewEpisode.Invoke();
         EndEpisode();
     }
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-        var continuousActionsOut = actionsOut.ContinuousActions;
-        continuousActionsOut[0] = Mathf.Lerp(0,Input.GetAxis("Horizontal"),0.8f);
-        continuousActionsOut[1] = Mathf.Lerp(0,Input.GetAxis("Vertical"),0.8f);
-    }
+    
+    // public override void Heuristic(in ActionBuffers actionsOut)
+    // {
+    //     var continuousActionsOut = actionsOut.ContinuousActions;
+    //     continuousActionsOut[0] = Mathf.Lerp(0,Input.GetAxis("Horizontal"),0.8f);
+    //     continuousActionsOut[1] = Mathf.Lerp(0,Input.GetAxis("Vertical"),0.8f);
+    // }
 }
