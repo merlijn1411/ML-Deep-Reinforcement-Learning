@@ -10,6 +10,8 @@
 /Scripts/
 /SeekerTraining/
 /Seeker/
+/result/ppo/run_logs/
+/result/ppo/Seeker/
 
 # Output Artifacts
 /models
