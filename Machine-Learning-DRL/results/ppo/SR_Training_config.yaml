@@ -105,10 +105,7 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 2
           threshold: 0.75
-          parameters: {
-            block_distance: 2
-          }
-        value: 0.2
+        value: 2
 
       - name: Medium
         completion_criteria:
@@ -117,10 +114,7 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 4
           threshold: 0.90
-          parameters: {
-            block_distance: 4
-          }
-        value: 0.6
+        value: 4
 
       - name: Hard
         completion_criteria:
@@ -129,10 +123,7 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
-          parameters: {
-            block_distance: 6
-          }
-        value: 0.9
+        value: 6
 
   TrainingArea_Runner:
     curriculum:
@@ -143,11 +134,8 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 2
           threshold: 0.75
-          parameters: {
-            block_distance: 2
-          }
-        value: 0.2
-
+        value: 0
+        
       - name: Medium
         completion_criteria:
           measure: reward
@@ -155,10 +143,7 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 4
           threshold: 0.90
-          parameters: {
-            block_distance: 4
-          }
-        value: 0.6
+        value: 0
 
       - name: Hard
         completion_criteria:
@@ -167,7 +152,4 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
-          parameters: {
-            block_distance: 6
-          }
-        value: 0.9
+        value: 0  

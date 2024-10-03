@@ -17,18 +17,13 @@ public class BlockController : MonoBehaviour
     {
         BeginEpisodePosition();
     }
-    
-    private void OnEnable()
-    {
-        Academy.Instance.OnEnvironmentReset += BeginEpisodePosition;
-    }
 
     public void BeginEpisodePosition()
     {
         countDown.t = timer; //reset de timer
         
         // deze is verbonden met het Curriculum system in het yaml file.
-        var blockDistance = Academy.Instance.EnvironmentParameters.GetWithDefault("block_distance", defaultBlockDistance);
+        var blockDistance = Academy.Instance.EnvironmentParameters.GetWithDefault("TrainingArea_Seeker", defaultBlockDistance);
         Debug.Log("Block distance set to: " + blockDistance);
         
         seekerAgent.transform.localPosition = new Vector3( -blockDistance, 1f, -1);
