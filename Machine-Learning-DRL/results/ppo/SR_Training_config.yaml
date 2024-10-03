@@ -1,7 +1,6 @@
 behaviors:
   Seeker:
     trainer_type: ppo
-    ##init_path: results\ppo\SR\checkpoint.pt #alleen gebruiken als je een file path naar de checkpoint.pt hebt.
     keep_checkpoints: 5
     checkpoint_interval: 500000
     max_steps: 1000000
@@ -10,8 +9,8 @@ behaviors:
     summary_freq: 5000
 
     hyperparameters:
-      batch_size:   2048 
-      buffer_size:  20480 
+      batch_size:   1024 
+      buffer_size:  10240 
       learning_rate: 0.0003
       beta: 0.003
       epsilon: 0.15
@@ -23,7 +22,7 @@ behaviors:
 
     network_settings:
       normalize: true
-      hidden_units: 256
+      hidden_units: 128
       num_layers: 2
       vis_encode_type: simple
       encoding_size: 64
@@ -45,9 +44,11 @@ behaviors:
       save_steps: 20000
       swap_steps: 10000
       play_against_latest_model_ratio: 0.5
+      initial_elo:  600.0
+      log_path: "results"
+  
   Runner:
     trainer_type: ppo
-    ##init_path: results\ppo\SR\checkpoint.pt #alleen gebruiken als je een file path naar de checkpoint.pt hebt.
     keep_checkpoints: 5
     checkpoint_interval: 500000
     max_steps: 1000000
@@ -69,8 +70,8 @@ behaviors:
 
     network_settings:
       normalize: true
-      hidden_units: 256
-      num_layers: 2
+      hidden_units: 254
+      num_layers: 3
       vis_encode_type: simple
       encoding_size: 64
       memory:
@@ -91,69 +92,71 @@ behaviors:
       save_steps: 20000
       swap_steps: 10000
       play_against_latest_model_ratio: 0.5
+      initial_elo:  600.0
+      log_path: "results"
 
 environment_parameters:
-  TrainingArea: 
-    # dit is voor de moeilijkheidsgraad van de taak geleidelijk verhogen zodat de agent beter presteert.  
-    curriculum: 
-      - name: Easy Seeker
+  TrainingArea_Seeker:
+    curriculum:
+      - name: Easy
         completion_criteria:
-          measure: "reward"
-          behavior: Seeker
+          measure: reward
+          behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 2
-          threshold: 0.5  # De reward of prestatie die de agent moet bereiken om naar de volgende les te gaan
+          threshold: 0.5
           require_reset: true
-          block_distance: 2.0  # afstand per level.
+          block_distance: 2
         value: 0.2
-      - name: Medium Seeker
+      - name: Medium
         completion_criteria:
-          measure: "reward"
-          behavior: Seeker
+          measure: reward
+          behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 4
-          threshold: 0.75  # Grotere prestatie vereist om door te gaan
+          threshold: 0.75
           require_reset: true
-          block_distance: 4.0  
+          block_distance: 4
         value: 0.4
-      - name: Hard Seeker
+      - name: Hard
         completion_criteria:
-          measure: "reward"
-          behavior: Seeker
+          measure: reward
+          behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
           require_reset: true
-          block_distance: 6.0  
+          block_distance: 6
         value: 0.6
-
-      - name: Easy Runner
+  TrainingArea_Runner:
+    curriculum:
+      - name: Easy
         completion_criteria:
-          measure: "reward"
-          behavior: Runner
+          measure: reward
+          behavior: "Runner"
           signal_smoothing: true
           min_lesson_length: 2
-          threshold: 0.5  # De reward of prestatie die de agent moet bereiken om naar de volgende les te gaan
+          threshold: 0.5
           require_reset: true
-          block_distance: 2.0  # afstand per level.
+          block_distance: 2
         value: 0.2
-      - name: Medium Runner
+      - name: Medium
         completion_criteria:
-          measure: "reward"
-          behavior: Runner
+          measure: reward
+          behavior: "Runner"
           signal_smoothing: true
           min_lesson_length: 4
-          threshold: 0.75  # Grotere prestatie vereist om door te gaan
+          threshold: 0.75
           require_reset: true
-          block_distance: 4.0  
+          block_distance: 4
         value: 0.4
-      - name: Hard Runner
+      - name: Hard
         completion_criteria:
-          measure: "reward"
-          behavior: Runner
+          measure: reward
+          behavior: "Runner"
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
           require_reset: true
-          block_distance: 6.0  
+          block_distance: 6
         value: 0.6
