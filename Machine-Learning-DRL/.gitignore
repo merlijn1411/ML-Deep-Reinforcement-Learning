@@ -12,6 +12,7 @@
 /Seeker/
 /result/ppo/run_logs/
 /result/ppo/Seeker/
+/Packages/YamlDotNet-16.1.3/
 
 # Output Artifacts
 /models

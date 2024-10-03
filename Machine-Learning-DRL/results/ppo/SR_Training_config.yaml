@@ -104,20 +104,24 @@ environment_parameters:
           behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 2
-          threshold: 0.5
-          require_reset: true
-          block_distance: 2
+          threshold: 0.75
+          parameters: {
+            block_distance: 2
+          }
         value: 0.2
+
       - name: Medium
         completion_criteria:
           measure: reward
           behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 4
-          threshold: 0.75
-          require_reset: true
-          block_distance: 4
-        value: 0.4
+          threshold: 0.90
+          parameters: {
+            block_distance: 4
+          }
+        value: 0.6
+
       - name: Hard
         completion_criteria:
           measure: reward
@@ -125,9 +129,11 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
-          require_reset: true
-          block_distance: 6
-        value: 0.6
+          parameters: {
+            block_distance: 6
+          }
+        value: 0.9
+
   TrainingArea_Runner:
     curriculum:
       - name: Easy
@@ -136,20 +142,24 @@ environment_parameters:
           behavior: "Runner"
           signal_smoothing: true
           min_lesson_length: 2
-          threshold: 0.5
-          require_reset: true
-          block_distance: 2
+          threshold: 0.75
+          parameters: {
+            block_distance: 2
+          }
         value: 0.2
+
       - name: Medium
         completion_criteria:
           measure: reward
           behavior: "Runner"
           signal_smoothing: true
           min_lesson_length: 4
-          threshold: 0.75
-          require_reset: true
-          block_distance: 4
-        value: 0.4
+          threshold: 0.90
+          parameters: {
+            block_distance: 4
+          }
+        value: 0.6
+
       - name: Hard
         completion_criteria:
           measure: reward
@@ -157,6 +167,7 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
-          require_reset: true
-          block_distance: 6
-        value: 0.6
+          parameters: {
+            block_distance: 6
+          }
+        value: 0.9
