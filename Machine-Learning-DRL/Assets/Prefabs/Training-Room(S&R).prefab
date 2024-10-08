@@ -635,6 +635,10 @@ PrefabInstance:
       propertyPath: onNewEpisode.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 3897186668090736437, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6616785558688212005, guid: c07cdc9b85c9ec74fbd3120d8799c5bf, type: 3}
       propertyPath: m_Name
       value: Seeker
@@ -673,6 +677,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5474789965627287717}
     m_Modifications:
+    - target: {fileID: -5458343283886697613, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1410124710232409093, guid: 7eedbfb78d812734e8cefae19427c008, type: 3}
       propertyPath: m_Name
       value: Runner

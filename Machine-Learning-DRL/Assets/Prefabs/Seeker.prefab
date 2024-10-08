@@ -159,6 +159,9 @@ MonoBehaviour:
   walkSpeed: 0.08
   rotationSpeed: 10
   countDown: {fileID: 0}
+  onNewEpisode:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &3445582394551323361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,7 +198,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 7aab7354fe35b144d8ea740f989883f6, type: 3}
   m_InferenceDevice: 3
   m_BehaviorType: 0
   m_BehaviorName: Seeker
