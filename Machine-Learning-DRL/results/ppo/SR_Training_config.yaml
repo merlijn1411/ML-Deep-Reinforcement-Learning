@@ -1,17 +1,16 @@
 behaviors:
   Seeker:
     trainer_type: ppo
-    ##init_path: results\ppo\SR\checkpoint.pt #alleen gebruiken als je een file path naar de checkpoint.pt hebt.
-    keep_checkpoints: 5
-    checkpoint_interval: 5000000
+    init_path: results\ppo\Seeker\checkpoint.pt
+    checkpoint_interval: 500000
     max_steps: 1000000
     threaded: true
     time_horizon: 64
     summary_freq: 5000
 
     hyperparameters:
-      batch_size:   2048 
-      buffer_size:  20480 
+      batch_size:   1024 
+      buffer_size:  10240 
       learning_rate: 0.0003
       beta: 0.003
       epsilon: 0.15
@@ -23,7 +22,7 @@ behaviors:
 
     network_settings:
       normalize: true
-      hidden_units: 256
+      hidden_units: 128
       num_layers: 2
       vis_encode_type: simple
       encoding_size: 64
@@ -45,40 +44,114 @@ behaviors:
       save_steps: 20000
       swap_steps: 10000
       play_against_latest_model_ratio: 0.5
+      initial_elo:  600.0
+      log_path: "results"
+      window: 10
+  
+  Runner:
+    trainer_type: ppo
+    init_path: results\ppo\Runner\checkpoint.pt
+    checkpoint_interval: 500000
+    max_steps: 1000000
+    threaded: true
+    time_horizon: 64
+    summary_freq: 5000
+
+    hyperparameters:
+      batch_size:   2048 
+      buffer_size:  20480 
+      learning_rate: 0.0003
+      beta: 0.003
+      epsilon: 0.15
+      lambd: 0.95
+      num_epoch: 4
+      learning_rate_schedule: constant
+      beta_schedule: constant
+      epsilon_schedule: constant
+
+    network_settings:
+      normalize: true
+      hidden_units: 254
+      num_layers: 3
+      vis_encode_type: simple
+      encoding_size: 64
+      memory:
+        sequence_length: 64
+        memory_size: 256
+
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+
+      curiosity:
+        gamma: 0.995
+        strength: 0.01
+        learning_rate: 3e-4
+    
+    self_play: 
+      save_steps: 20000
+      swap_steps: 10000
+      play_against_latest_model_ratio: 0.5
+      initial_elo:  600.0
+      log_path: "results"
+      window: 10
+
 environment_parameters:
-  TrainingArea: 
-    # dit is voor de moeilijkheidsgraad van de taak geleidelijk verhogen zodat de agent beter presteert.  
-    curriculum: 
+  TrainingArea_Seeker:
+    curriculum:
       - name: Easy
         completion_criteria:
-          measure: "reward"
-          behavior: Seeker
+          measure: reward
+          behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 2
-          threshold: 0.5  # De reward of prestatie die de agent moet bereiken om naar de volgende les te gaan
-          require_reset: true
-          parameters:
-            block_distance: 2.0  # afstand per level.
-        value: 0.2
+          threshold: 0.75
+        value: 2
+
       - name: Medium
         completion_criteria:
-          measure: "reward"
-          behavior: Seeker
+          measure: reward
+          behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 4
-          threshold: 0.75  # Grotere prestatie vereist om door te gaan
-          require_reset: true
-          parameters:
-            block_distance: 4.0  
-        value: 0.4
+          threshold: 0.90
+        value: 4
+
       - name: Hard
         completion_criteria:
-          measure: "reward"
-          behavior: Seeker
+          measure: reward
+          behavior: "Seeker"
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
-          require_reset: true
-          parameters:
-            block_distance: 6.0  
-        value: 0.6
+        value: 6
+
+  TrainingArea_Runner:
+    curriculum:
+      - name: Easy
+        completion_criteria:
+          measure: reward
+          behavior: "Runner"
+          signal_smoothing: true
+          min_lesson_length: 2
+          threshold: 0.75
+        value: 0
+        
+      - name: Medium
+        completion_criteria:
+          measure: reward
+          behavior: "Runner"
+          signal_smoothing: true
+          min_lesson_length: 4
+          threshold: 0.90
+        value: 0
+
+      - name: Hard
+        completion_criteria:
+          measure: reward
+          behavior: "Runner"
+          signal_smoothing: true
+          min_lesson_length: 6
+          threshold: 1
+        value: 0  
