@@ -1,7 +1,7 @@
 behaviors:
   Seeker:
     trainer_type: ppo
-    init_path: results\ppo\Seeker\checkpoint.pt
+    #init_path: results\ppo\Seeker\checkpoint.pt
     checkpoint_interval: 500000
     max_steps: 1000000
     threaded: true
@@ -46,11 +46,10 @@ behaviors:
       play_against_latest_model_ratio: 0.5
       initial_elo:  600.0
       log_path: "results"
-      window: 10
   
   Runner:
     trainer_type: ppo
-    init_path: results\ppo\Runner\checkpoint.pt
+    #init_path: results\ppo\Runner\checkpoint.pt
     checkpoint_interval: 500000
     max_steps: 1000000
     threaded: true
@@ -95,7 +94,6 @@ behaviors:
       play_against_latest_model_ratio: 0.5
       initial_elo:  600.0
       log_path: "results"
-      window: 10
 
 environment_parameters:
   TrainingArea_Seeker:
@@ -126,6 +124,8 @@ environment_parameters:
           min_lesson_length: 6
           threshold: 1
         value: 6
+      - name: Completion
+        value: 6.5
 
   TrainingArea_Runner:
     curriculum:
@@ -154,4 +154,6 @@ environment_parameters:
           signal_smoothing: true
           min_lesson_length: 6
           threshold: 1
-        value: 0  
+        value: 0
+      - name: Completion
+        value: 0
