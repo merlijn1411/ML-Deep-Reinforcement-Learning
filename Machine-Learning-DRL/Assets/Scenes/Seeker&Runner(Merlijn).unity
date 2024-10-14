@@ -171,6 +171,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Training-Room(S&R) (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -227,6 +231,10 @@ PrefabInstance:
     - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_Name
       value: Training-Room(S&R) (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -285,6 +293,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Training-Room(S&R) (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -341,6 +353,10 @@ PrefabInstance:
     - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_Name
       value: Training-Room(S&R) (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -491,12 +507,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Training-Room(S&R) (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
---- !u!1001 &1130957381
+--- !u!1001 &1887271839
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -504,6 +524,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 550524281637726445, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: jumpForce
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5474789965627287717, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -652,7 +676,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 928397806}
   - {fileID: 1908276844}
-  - {fileID: 1130957381}
+  - {fileID: 1887271839}
   - {fileID: 757144785}
   - {fileID: 767087026}
   - {fileID: 1101972802}
