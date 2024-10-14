@@ -2,7 +2,7 @@ using Unity.MLAgents;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class BlockController : MonoBehaviour
+public class EnvironmentController : MonoBehaviour
 {
     [SerializeField] private float timer;
     [SerializeField] private float defaultBlockDistance;
@@ -26,10 +26,10 @@ public class BlockController : MonoBehaviour
         var blockDistance = Academy.Instance.EnvironmentParameters.GetWithDefault("TrainingArea_Seeker", defaultBlockDistance);
         
         seekerAgent.transform.localPosition = new Vector3( -blockDistance, 1f, -1);
-        seekerAgent.transform.localRotation = new Quaternion();
+        seekerAgent.transform.eulerAngles = new Vector3(0, 90, 0);  
         
         runnerAgent.transform.localPosition = new Vector3(blockDistance,1f,-1);
-        runnerAgent.transform.localRotation = new Quaternion();
+        runnerAgent.transform.eulerAngles = new Vector3(0, -90, 0);  
     }
 
     private void Update()
