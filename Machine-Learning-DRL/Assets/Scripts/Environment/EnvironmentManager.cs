@@ -2,7 +2,7 @@ using Unity.MLAgents;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EnvironmentController : MonoBehaviour
+public class EnvironmentManager : MonoBehaviour
 {
     [SerializeField] private float timer;
     [SerializeField] private float defaultBlockDistance;
