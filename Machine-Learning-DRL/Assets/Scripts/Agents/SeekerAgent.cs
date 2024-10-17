@@ -63,7 +63,7 @@ public class SeekerAgent : Agent
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         MoveAgent(actionBuffers.DiscreteActions);
-        SetReward(-0.001f);
+        AddReward(-0.001f);
         
         AgentFellOff();
     }
@@ -101,9 +101,20 @@ public class SeekerAgent : Agent
         var horizontalVelocity = dirToGo.normalized * walkSpeed;
         _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
         
+        var obstacleDetected = CheckForObstacle();
+        
         if (jumpAction == 1 && _isGrounded)
         {
-            Jump();
+            if (obstacleDetected)
+            {
+                Jump();
+                AddReward(0.1f); 
+            }
+        }
+        
+        if (jumpAction == 1 && !obstacleDetected) 
+        {
+            AddReward(-0.01f); // Straf voor onnodig springen
         }
         
         if (!_isGrounded)
@@ -124,6 +135,18 @@ public class SeekerAgent : Agent
         SetReward(reward);
         EndEpisode();
         
+    }
+    
+    private bool CheckForObstacle() {
+        RaycastHit hit;
+        // Stel de afstand en layer in voor de raycast (pas aan naar je situatie)
+        var raycastDistance = 2.0f;
+        LayerMask obstacleLayer = LayerMask.GetMask("Obstacles");
+        Debug.Log(obstacleLayer);
+        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, obstacleLayer)) {
+            return true; // Obstakel gedetecteerd
+        }
+        return false; // Geen obstakel gedetecteerd
     }
     
     private void CheckIfGrounded()
@@ -153,7 +176,7 @@ public class SeekerAgent : Agent
         }        
         if (other.gameObject.CompareTag($"Wall"))
         {
-            SetReward(-0.01f);
+            AddReward(-0.01f);
         }
     }
 
