@@ -156,9 +156,10 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 1000
   target: {fileID: 0}
+  obstacleFence: {fileID: 0}
   walkSpeed: 10
   jumpForce: 10
-  rotationSpeed: 5
+  rotationSpeed: 2.5
   countDown: {fileID: 0}
   onNewEpisode:
     m_PersistentCalls:
@@ -202,7 +203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 11
+    VectorObservationSize: 14
     NumStackedVectorObservations: 3
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -242,7 +243,7 @@ MonoBehaviour:
   m_RayLength: 20
   m_RayLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 65
   m_ObservationStacks: 1
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 0.99106956, b: 0, a: 1}

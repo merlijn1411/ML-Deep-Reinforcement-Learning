@@ -127,6 +127,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 550524281637726445, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: rotationSpeed
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5474789965627287717, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 60
@@ -170,6 +174,10 @@ PrefabInstance:
     - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_Name
       value: Training-Room(S&R) (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -237,7 +245,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 15.8
+  orthographic size: 16
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -276,6 +284,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 550524281637726445, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: rotationSpeed
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5474789965627287717, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 120
@@ -320,6 +332,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Training-Room(S&R) (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -333,6 +349,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 550524281637726445, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: rotationSpeed
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 890400106677677819, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3655874882634054613, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_BehaviorType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5474789965627287717, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

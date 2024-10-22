@@ -7,6 +7,7 @@ using UnityEngine.Events;
 public class RunnerAgent : Agent
 {
     [SerializeField] private GameObject target;
+    [SerializeField] private Transform obstacleFence;
     
     [SerializeField] private float walkSpeed;
     [SerializeField] private float jumpForce;
@@ -17,13 +18,15 @@ public class RunnerAgent : Agent
     private Rigidbody _rBody;
     private Rigidbody _targetRbody;
     private bool _isGrounded;
+    
+    private float _previousDistance;
+    private float _distanceToTarget;
 
     [SerializeField] private UnityEvent onNewEpisode;
     
     public override void Initialize()
     {
         _rBody = GetComponent<Rigidbody>();
-
         _targetRbody = target.GetComponent<Rigidbody>();
     }
     
@@ -35,16 +38,19 @@ public class RunnerAgent : Agent
     public override void CollectObservations(VectorSensor sensor)
     {
         //Agent y axis rotation(1)
-        sensor.AddObservation(transform.rotation.y);
+        sensor.AddObservation(transform.localRotation.y);
         
         //Vector van target naar ball (direction naar target)(3)
-        var toTarget = new Vector3((target.transform.position.x - transform.position.x) * rotationSpeed,
-            (target.transform.position.y - transform.position.y),(target.transform.position.z - transform.position.z)*rotationSpeed);
+        var toTarget = new Vector3((target.transform.localPosition.x - transform.localPosition.x) * rotationSpeed,
+            (target.transform.localPosition.y - transform.localPosition.y),(target.transform.localPosition.z - transform.localPosition.z)*rotationSpeed);
         
         sensor.AddObservation(toTarget.magnitude);
         
         //Aftsand van de target(1)
         sensor.AddObservation(toTarget.normalized);
+        
+        //Wall localPosition(3)
+        sensor.AddObservation(obstacleFence.localPosition);
             
         //Agent velocity(3)
         sensor.AddObservation(_rBody.velocity);
@@ -116,6 +122,8 @@ public class RunnerAgent : Agent
         {
             _rBody.AddForce(Vector3.down * 150f, ForceMode.Acceleration);
         }
+
+        DistanceToTarget();
     }
     
     private void Jump()
@@ -129,12 +137,22 @@ public class RunnerAgent : Agent
         EndEpisode();
     }
     
+    private void DistanceToTarget()
+    {
+        _distanceToTarget = Vector3.Distance(transform.localPosition, target.transform.localPosition);
+        // Reward for reducing distance to the cube
+        if (_previousDistance > _distanceToTarget)
+        {
+            AddReward(-0.02f); // Give a small negative reward for getting closer
+        }
+        _previousDistance = _distanceToTarget;
+    }
+    
     private bool CheckForObstacle() {
         RaycastHit hit;
         // Stel de afstand en layer in voor de raycast (pas aan naar je situatie)
-        var raycastDistance = 2.0f;
+        var raycastDistance = 10f;
         LayerMask obstacleLayer = LayerMask.GetMask("Obstacles");
-        Debug.Log(obstacleLayer);
         if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, obstacleLayer)) {
             return true; // Obstakel gedetecteerd
         }
