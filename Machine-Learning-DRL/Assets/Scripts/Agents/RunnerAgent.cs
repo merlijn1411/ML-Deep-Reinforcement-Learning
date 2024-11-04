@@ -102,20 +102,9 @@ public class RunnerAgent : Agent
         var horizontalVelocity = dirToGo.normalized * walkSpeed;
         _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
         
-        var obstacleDetected = CheckForObstacle();
-        
         if (jumpAction == 1 && _isGrounded)
         {
-            if (obstacleDetected)
-            {
-                Jump();
-                AddReward(0.1f); 
-            }
-        }
-        
-        if (jumpAction == 1 && !obstacleDetected) 
-        {
-            AddReward(-0.01f);
+            Jump();
         }
         
         if (!_isGrounded)
@@ -148,16 +137,6 @@ public class RunnerAgent : Agent
         _previousDistance = _distanceToTarget;
     }
     
-    private bool CheckForObstacle() {
-        RaycastHit hit;
-        // Stel de afstand en layer in voor de raycast (pas aan naar je situatie)
-        var raycastDistance = 10f;
-        LayerMask obstacleLayer = LayerMask.GetMask("Obstacles");
-        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, obstacleLayer)) {
-            return true; // Obstakel gedetecteerd
-        }
-        return false; // Geen obstakel gedetecteerd
-    }
     
     private void CheckIfGrounded()
     {
