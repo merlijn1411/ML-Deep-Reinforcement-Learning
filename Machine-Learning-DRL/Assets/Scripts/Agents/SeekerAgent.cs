@@ -72,8 +72,6 @@ public class SeekerAgent : Agent
     private void MoveAgent(ActionSegment<int> act)
     {
         //Dit is inprencipe het zelfde als Input.GetAxis zodat de Machine kan leren bewegen.
-        CheckIfGrounded();
-        
         var dirToGo = Vector3.zero;
         var rotateDir = Vector3.zero;
 
@@ -89,13 +87,14 @@ public class SeekerAgent : Agent
             4 => (_isGrounded ? 1f : 0.5f) * transform.right ,
             _ => dirToGo
         };
-
+        
         rotateDir = rotationAction switch
         {
             1 => transform.up * -1f,
             2 => transform.up * 1f,
             _ => rotateDir
         };
+        
 
         transform.Rotate(rotateDir, rotationSpeed);
         

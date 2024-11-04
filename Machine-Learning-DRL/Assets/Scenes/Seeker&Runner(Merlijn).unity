@@ -357,9 +357,25 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -6
       objectReference: {fileID: 0}
+    - target: {fileID: 3244287607372640491, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3244287607372640491, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IncludeLayers.m_Bits
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 3655874882634054613, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_BehaviorType
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5155635139646093249, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5168367904671795600, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_BehaviorType
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5474789965627287717, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -404,6 +420,18 @@ PrefabInstance:
     - target: {fileID: 6336637234135673118, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
       propertyPath: m_Name
       value: Training-Room(S&R)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348321158531755581, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9077809530376964988, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9077809530376964988, guid: 5557a083fa92d3f479cb333bc561c9e8, type: 3}
+      propertyPath: m_IncludeLayers.m_Bits
+      value: 4294967295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
