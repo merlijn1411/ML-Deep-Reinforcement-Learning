@@ -66,8 +66,6 @@ public class SeekerAgent : Agent
     {
         MoveAgent(actionBuffers.DiscreteActions);
         AddReward(-0.001f);
-        
-        AgentFellOff();
     }
     
     private void MoveAgent(ActionSegment<int> act)
@@ -180,14 +178,6 @@ public class SeekerAgent : Agent
             SetReward(0.3f);
             Destroy(other.gameObject);
         }
-    }
-
-    private void AgentFellOff()
-    {
-        if (!(transform.localPosition.y < 0)) return;
-        SetReward(-1f);
-        onNewEpisode.Invoke();
-        EndEpisode();
     }
     
     public override void Heuristic(in ActionBuffers actionsOut)
