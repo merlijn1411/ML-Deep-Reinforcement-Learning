@@ -65,8 +65,6 @@ public class RunnerAgent : Agent
     {
         MoveAgent(actionBuffers.DiscreteActions);
         AddReward(0.001f);
-        
-        AgentFellOff();
     }
     
     private void MoveAgent(ActionSegment<int> act)
@@ -109,7 +107,7 @@ public class RunnerAgent : Agent
         
         if (!_isGrounded)
         {
-            _rBody.AddForce(Vector3.down * 150f, ForceMode.Acceleration);
+            _rBody.AddForce(Vector3.down * 75f, ForceMode.Acceleration);
         }
 
         DistanceToTarget();
@@ -166,14 +164,6 @@ public class RunnerAgent : Agent
         
         if (other.gameObject.CompareTag($"Wall"))
             AddReward(-0.01f);
-    }
-
-    private void AgentFellOff()
-    {
-        if (!(transform.localPosition.y < 0)) return;
-        SetReward(-1f);
-        onNewEpisode.Invoke();
-        EndEpisode();
     }
     
     public override void Heuristic(in ActionBuffers actionsOut)
