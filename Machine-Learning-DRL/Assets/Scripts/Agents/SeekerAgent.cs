@@ -1,4 +1,3 @@
-using System;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -14,7 +13,10 @@ public class SeekerAgent : Agent
     [SerializeField] private float rotationSpeed;
     
     [SerializeField] private Timer countDown;
-    
+
+    private const float _forceMultplier = 150f;
+    private float _groundCheckDistance = 6f;
+        
     private Rigidbody _rBody;
     private Rigidbody _targetRbody;
     private bool _isGrounded;
@@ -33,8 +35,7 @@ public class SeekerAgent : Agent
     {
         _rBody.velocity = Vector3.zero;
     }
-
-
+    
     //Deze method houd bij welke gegevens hij moet onthouden dat word gebruikt om een vedere beslissing te maken (dus action). 
     public override void CollectObservations(VectorSensor sensor)
     {
@@ -103,14 +104,11 @@ public class SeekerAgent : Agent
         
 
         if (jumpAction == 1 && _isGrounded)
-        {
             Jump();
-        }
-        
-        if (!_isGrounded)
-        {
-            _rBody.AddForce(Vector3.down * 150f, ForceMode.Acceleration);
-        }
+
+        var checkGrounded = !CheckGrounded();
+        if (!_isGrounded && checkGrounded)
+            _rBody.AddForce(Vector3.down * _forceMultplier, ForceMode.Acceleration);
         
         DistanceToTarget();
     }
@@ -118,6 +116,12 @@ public class SeekerAgent : Agent
     private void Jump()
     {
         _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+    
+    private bool CheckGrounded()
+    {
+        var ray = new Ray(transform.position, Vector3.down);
+        return Physics.Raycast(ray, out RaycastHit hit, _groundCheckDistance);
     }
     
     private void DistanceToTarget()

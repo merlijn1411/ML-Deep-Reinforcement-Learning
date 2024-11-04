@@ -15,6 +15,9 @@ public class RunnerAgent : Agent
     
     [SerializeField] private Timer countDown;
 
+    private const float _forceMultplier = 150f;
+    private float _groundCheckDistance = 6f;
+    
     private Rigidbody _rBody;
     private Rigidbody _targetRbody;
     private bool _isGrounded;
@@ -101,21 +104,24 @@ public class RunnerAgent : Agent
         _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
         
         if (jumpAction == 1 && _isGrounded)
-        {
             Jump();
-        }
-        
-        if (!_isGrounded)
-        {
-            _rBody.AddForce(Vector3.down * 75f, ForceMode.Acceleration);
-        }
 
+        var checkGrounded = !CheckGrounded();
+        if (!_isGrounded && checkGrounded)
+            _rBody.AddForce(Vector3.down * _forceMultplier, ForceMode.Acceleration);
+                
         DistanceToTarget();
     }
     
     private void Jump()
     {
         _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+    }
+    
+    private bool CheckGrounded()
+    {
+        var ray = new Ray(transform.position, Vector3.down);
+        return Physics.Raycast(ray, out RaycastHit hit, _groundCheckDistance);
     }
     
     public void TimerReachedZeroReward()
