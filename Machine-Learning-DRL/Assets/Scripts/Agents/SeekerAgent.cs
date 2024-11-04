@@ -14,8 +14,7 @@ public class SeekerAgent : Agent
     
     [SerializeField] private Timer countDown;
 
-    private const float _forceMultplier = 150f;
-    private float _groundCheckDistance = 6f;
+    private const float _forceDownMultiplier = 50f;
         
     private Rigidbody _rBody;
     private Rigidbody _targetRbody;
@@ -65,6 +64,7 @@ public class SeekerAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        CheckIfGrounded();
         MoveAgent(actionBuffers.DiscreteActions);
         AddReward(-0.001f);
     }
@@ -74,25 +74,34 @@ public class SeekerAgent : Agent
         //Dit is inprencipe het zelfde als Input.GetAxis zodat de Machine kan leren bewegen.
         var dirToGo = Vector3.zero;
         var rotateDir = Vector3.zero;
+        var jumpDir = Vector3.zero;
 
-        var movementAction = act[0];
-        var rotationAction  = act[1];
-        var jumpAction = act[2];
+        var forwardAction = act[0];
+        var sidewardAction = act[1];
+        var rotationAction  = act[2];
+        var jumpAction = act[3];
         
-        dirToGo = movementAction switch
+        var speedModifier = _isGrounded ? 1f : 0.5f;
+        
+        dirToGo += forwardAction switch
         {
-            1 => (_isGrounded ? 1f : 0.5f) * transform.forward * 1f,
-            2 => (_isGrounded ? 1f : 0.5f) * transform.forward * -1f,
-            3 => (_isGrounded ? 1f : 0.5f) * transform.right  * -1f,
-            4 => (_isGrounded ? 1f : 0.5f) * transform.right ,
-            _ => dirToGo
+            1 => speedModifier * transform.forward * 1f,
+            2 => speedModifier * transform.forward * -1f,
+            _ => Vector3.zero
+        };
+
+        dirToGo += sidewardAction switch
+        {
+            1 => speedModifier * transform.right,
+            2 => speedModifier * transform.right * -1f,
+            _ => Vector3.zero
         };
         
         rotateDir = rotationAction switch
         {
             1 => transform.up * -1f,
             2 => transform.up * 1f,
-            _ => rotateDir
+            _ => Vector3.zero
         };
         
 
@@ -101,26 +110,24 @@ public class SeekerAgent : Agent
         var horizontalVelocity = dirToGo.normalized * walkSpeed;
         _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
         
-
-        if (jumpAction == 1 && _isGrounded)
-            Jump();
-
-        var checkGrounded = !CheckGrounded();
-        if (!_isGrounded && checkGrounded)
-            _rBody.AddForce(Vector3.down * _forceMultplier, ForceMode.Acceleration);
+        // Gravity boost als agent niet op de grond is en niet springt
+        if (!_isGrounded && jumpAction == 0)
+        {
+            _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
+        }
+        
+        if (_isGrounded && jumpAction == 1)
+        {
+            jumpDir = Vector3.up * jumpForce;
+            Jump(jumpDir);
+        }
         
         DistanceToTarget();
     }
     
-    private void Jump()
+    private void Jump(Vector3 jumpDir)
     {
-        _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-    }
-    
-    private bool CheckGrounded()
-    {
-        var ray = new Ray(transform.position, Vector3.down);
-        return Physics.Raycast(ray, out RaycastHit hit, _groundCheckDistance);
+        _rBody.AddForce(jumpDir, ForceMode.Impulse);
     }
     
     private void DistanceToTarget()
@@ -147,9 +154,7 @@ public class SeekerAgent : Agent
     {
         RaycastHit hit;
         const float distance = 1.1f;
-        var dir = Vector3.down;
-
-        if (Physics.Raycast(transform.position, dir, out hit, distance))
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, distance))
         {
             if (hit.collider.CompareTag("walkableSurface"))
             {
