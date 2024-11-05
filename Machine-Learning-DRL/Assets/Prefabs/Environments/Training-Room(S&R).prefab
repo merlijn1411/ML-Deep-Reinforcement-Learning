@@ -1225,6 +1225,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Obstacle fence
       objectReference: {fileID: 0}
+    - target: {fileID: 7353803891591584549, guid: 199d07d57723f074fab3b30017131594, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

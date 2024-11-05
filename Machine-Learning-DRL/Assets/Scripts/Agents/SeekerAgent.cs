@@ -5,8 +5,8 @@ using UnityEngine;
 using UnityEngine.Events;
 public class SeekerAgent : Agent
 {
+    private Transform _agentTransform; 
     [SerializeField] private GameObject target;
-    [SerializeField] private Transform obstacleFence;
     
     [SerializeField] private float walkSpeed;
     [SerializeField] private float jumpForce;
@@ -15,6 +15,7 @@ public class SeekerAgent : Agent
     [SerializeField] private Timer countDown;
 
     private const float _forceDownMultiplier = 50f;
+    private const float _maxFallSpeed = -20f;
         
     private Rigidbody _rBody;
     private Rigidbody _targetRbody;
@@ -24,6 +25,13 @@ public class SeekerAgent : Agent
     private float _distanceToTarget;
     
     [SerializeField] private UnityEvent onNewEpisode;
+    
+    private int _frameCounter = 0;
+    
+    private void Awake()
+    {
+        _agentTransform = transform;
+    }
     
     public override void Initialize()
     {
@@ -53,8 +61,6 @@ public class SeekerAgent : Agent
         //Agent velocity(3)
         sensor.AddObservation(_rBody.velocity);
         
-        //Wall localPosition(3)
-        sensor.AddObservation(obstacleFence.localPosition);
         
         // target velocity (3 floats)
         sensor.AddObservation(_targetRbody.velocity.y);
@@ -72,62 +78,68 @@ public class SeekerAgent : Agent
     private void MoveAgent(ActionSegment<int> act)
     {
         //Dit is inprencipe het zelfde als Input.GetAxis zodat de Machine kan leren bewegen.
-        var dirToGo = Vector3.zero;
-        var rotateDir = Vector3.zero;
-        var jumpDir = Vector3.zero;
 
-        var forwardAction = act[0];
-        var sidewardAction = act[1];
-        var rotationAction  = act[2];
-        var jumpAction = act[3];
+        var forwardAction = act[(int)AgentActions.Forward];
+        var sidewardAction = act[(int)AgentActions.Sideward];
+        var rotationAction = act[(int)AgentActions.Rotation];
+        var jumpAction = act[(int)AgentActions.Jump];
         
         var speedModifier = _isGrounded ? 1f : 0.5f;
-        
-        dirToGo += forwardAction switch
-        {
-            1 => speedModifier * transform.forward * 1f,
-            2 => speedModifier * transform.forward * -1f,
-            _ => Vector3.zero
-        };
+        var dirToGo = Vector3.zero;
 
-        dirToGo += sidewardAction switch
-        {
-            1 => speedModifier * transform.right,
-            2 => speedModifier * transform.right * -1f,
-            _ => Vector3.zero
-        };
-        
-        rotateDir = rotationAction switch
-        {
-            1 => transform.up * -1f,
-            2 => transform.up * 1f,
-            _ => Vector3.zero
-        };
-        
+        // Bewegingsrichting instellen
+        if (forwardAction == 1) dirToGo += speedModifier * _agentTransform.forward;
+        else if (forwardAction == 2) dirToGo -= speedModifier * _agentTransform.forward;
 
-        transform.Rotate(rotateDir, rotationSpeed);
-        
-        var horizontalVelocity = dirToGo.normalized * walkSpeed;
-        _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
+        if (sidewardAction == 1) dirToGo += speedModifier * _agentTransform.right;
+        else if (sidewardAction == 2) dirToGo -= speedModifier * _agentTransform.right;
+
+        // Rotatierichting instellen
+        var rotateDir = rotationAction == 1 ? -_agentTransform.up : 
+            rotationAction == 2 ? _agentTransform.up : 
+            Vector3.zero;
+
+        ApplyMovement(dirToGo);
+        ApplyRotation(rotateDir);
         
         // Gravity boost als agent niet op de grond is en niet springt
-        if (!_isGrounded && jumpAction == 0)
+        if (!_isGrounded && jumpAction == 0 && _rBody.velocity.y > -_maxFallSpeed)
         {
             _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
         }
-        
-        if (_isGrounded && jumpAction == 1)
+
+        // Sprongactie
+        if (jumpAction == 1)
         {
-            jumpDir = Vector3.up * jumpForce;
-            Jump(jumpDir);
+            Jump(jumpForce);
         }
         
-        DistanceToTarget();
+        // Bereken afstand tot doel minder vaak
+        if (_frameCounter % 5 == 0)
+        {
+            DistanceToTarget();
+        }
+        _frameCounter++;
     }
     
-    private void Jump(Vector3 jumpDir)
+    private void ApplyRotation(Vector3 rotateDir)
     {
-        _rBody.AddForce(jumpDir, ForceMode.Impulse);
+        transform.Rotate(rotateDir, rotationSpeed);
+    }
+    
+    private void ApplyMovement(Vector3 dirToGo)
+    {
+        var horizontalVelocity = dirToGo.normalized * walkSpeed;
+        _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
+    }
+    
+    private void Jump(float jumpForce)
+    {
+        if (_isGrounded)
+        {
+            _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            _isGrounded = false; // Zorg ervoor dat deze wordt gezet om dubbele sprongen te vermijden
+        }
     }
     
     private void DistanceToTarget()
@@ -135,9 +147,10 @@ public class SeekerAgent : Agent
         _distanceToTarget = Vector3.Distance(transform.localPosition, target.transform.localPosition);
         // Reward for reducing distance to the cube
         if (_previousDistance > _distanceToTarget)
-        {
             AddReward(0.02f); // Give a small positive reward for getting closer
-        }
+        else
+            AddReward(-0.02f); // Give a small negative reward for getting Furthur away
+        
         _previousDistance = _distanceToTarget;
     }
     
@@ -173,9 +186,9 @@ public class SeekerAgent : Agent
             onNewEpisode.Invoke();
             EndEpisode();
         }        
-        if (other.gameObject.CompareTag($"Wall"))
+        else if (other.gameObject.CompareTag("Wall"))
         {
-            AddReward(-0.01f);
+            AddReward(-0.05f - 0.01f * _distanceToTarget); 
         }
     }
 
@@ -191,36 +204,19 @@ public class SeekerAgent : Agent
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var discreteActionsOut = actionsOut.DiscreteActions;
+        discreteActionsOut.Clear();
+
+        if (Input.GetKey(KeyCode.W))
+            discreteActionsOut[0] = 1;
+        else if (Input.GetKey(KeyCode.S))
+            discreteActionsOut[0] = 2;
+
         if (Input.GetKey(KeyCode.D))
-        {
-            // rotate right
             discreteActionsOut[1] = 2;
-        }
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
-        {
-            // move forward
-            discreteActionsOut[0] = 1;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            // rotate left
+        else if (Input.GetKey(KeyCode.A))
             discreteActionsOut[1] = 1;
-        }
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-        {
-            // move backward
-            discreteActionsOut[0] = 2;
-        }
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            // move left
-            discreteActionsOut[0] = 1;
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            // move right
-            discreteActionsOut[0] = 2;
-        }
-        discreteActionsOut[2] = Input.GetKey(KeyCode.Space) ? 1 : 0;
+
+        if (Input.GetKey(KeyCode.Space))
+            discreteActionsOut[3] = 1;
     }
 }

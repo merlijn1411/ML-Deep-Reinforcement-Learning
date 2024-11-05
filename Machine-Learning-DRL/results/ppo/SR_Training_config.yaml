@@ -2,7 +2,7 @@ behaviors:
   Seeker:
     trainer_type: ppo
     #init_path: results\ppo\Seeker\checkpoint.pt
-    checkpoint_interval: 500000
+    checkpoint_interval: 5000000
     keep_checkpoints: 5
     max_steps: 10000000
     threaded: true
@@ -27,6 +27,7 @@ behaviors:
       num_layers: 4
       vis_encode_type: simple
       encoding_size: 64
+      inference_batch_size: 16
       memory:
         sequence_length: 512 
         memory_size: 256
@@ -43,15 +44,16 @@ behaviors:
     
     self_play: 
       save_steps: 20000
-      swap_steps: 10000
-      play_against_latest_model_ratio: 0.5
-      initial_elo:  600.0
+      swap_steps: 30000
+      play_against_latest_model_ratio: 0.7
+      initial_elo:  1200
+      window: 5
       log_path: "results"
   
   Runner:
     trainer_type: ppo
     #init_path: results\ppo\Runner\checkpoint.pt
-    checkpoint_interval: 500000
+    checkpoint_interval: 5000000
     keep_checkpoints: 5
     max_steps: 10000000
     threaded: true
@@ -76,6 +78,7 @@ behaviors:
       num_layers: 4
       vis_encode_type: simple
       encoding_size: 64
+      inference_batch_size: 16
       memory:
         sequence_length: 512 
         memory_size: 256
@@ -92,9 +95,10 @@ behaviors:
     
     self_play: 
       save_steps: 20000
-      swap_steps: 10000
-      play_against_latest_model_ratio: 0.5
-      initial_elo:  600.0
+      swap_steps: 30000
+      play_against_latest_model_ratio: 0.7
+      initial_elo: 1200
+      window: 5
       log_path: "results"
 
 environment_parameters:
