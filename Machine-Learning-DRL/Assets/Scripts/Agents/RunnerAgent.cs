@@ -44,7 +44,7 @@ public class RunnerAgent : Agent
         sensor.AddObservation(transform.localRotation.y);
         
         // Calculate direction to target
-        Vector3 toTarget = target.transform.localPosition - transform.localPosition;
+        var toTarget = target.transform.localPosition - transform.localPosition;
         sensor.AddObservation(toTarget.magnitude * rotationSpeed);
         sensor.AddObservation(toTarget.normalized);
         sensor.AddObservation(_rBody.velocity);
@@ -69,10 +69,11 @@ public class RunnerAgent : Agent
         Vector3 dirToGo = Vector3.zero;
 
         // Set movement direction
-        if (forwardAction == 1) dirToGo += speedModifier * _agentTransform.forward;
-        if (forwardAction == 2) dirToGo -= speedModifier * _agentTransform.forward;
-        if (sidewardAction == 1) dirToGo += speedModifier * _agentTransform.right;
-        if (sidewardAction == 2) dirToGo -= speedModifier * _agentTransform.right;
+        dirToGo += forwardAction == 1 ? speedModifier * _agentTransform.forward : Vector3.zero;
+        dirToGo -= forwardAction == 2 ? speedModifier * _agentTransform.forward : Vector3.zero;
+
+        dirToGo += sidewardAction == 1 ? speedModifier * _agentTransform.right : Vector3.zero;
+        dirToGo -= sidewardAction == 2 ? speedModifier * _agentTransform.right : Vector3.zero;
 
         ApplyMovement(dirToGo);
         ApplyRotation(GetRotationDirection(rotationAction));
@@ -86,6 +87,7 @@ public class RunnerAgent : Agent
 
         // Update distance to target less frequently
         if (_frameCounter % 5 == 0) UpdateDistanceToTarget();
+           
         _frameCounter++;
     }
     
@@ -101,11 +103,9 @@ public class RunnerAgent : Agent
     
     private void Jump()
     {
-        if (_isGrounded)
-        {
-            _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            _isGrounded = false; // Prevent double jumps
-        }
+        if (!_isGrounded) return;
+        _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        _isGrounded = false; // Prevent double jumps
     }
     
     public void TimerReachedZeroReward()
@@ -125,14 +125,7 @@ public class RunnerAgent : Agent
     {
         if (_isGrounded) return; // Only raycast if not grounded
 
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f))
-        {
-            _isGrounded = hit.collider.CompareTag("walkableSurface");
-        }
-        else
-        {
-            _isGrounded = false;
-        }
+        _isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f) && hit.collider.CompareTag("walkableSurface");
     }
     
     private void OnCollisionEnter(Collision other)
@@ -143,10 +136,10 @@ public class RunnerAgent : Agent
             onNewEpisode.Invoke();
             EndEpisode();
         }
-        else if (other.gameObject.CompareTag("Wall"))
-        {
-            AddReward(-0.05f - 0.01f * _distanceToTarget); 
-        }
+        // else if (other.gameObject.CompareTag("Wall"))
+        // {
+        //     AddReward(-0.05f - -0.01f * _distanceToTarget); 
+        // }
     }
     
     public override void Heuristic(in ActionBuffers actionsOut)

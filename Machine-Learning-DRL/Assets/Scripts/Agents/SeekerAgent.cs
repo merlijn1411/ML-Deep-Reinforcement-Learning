@@ -25,7 +25,7 @@ public class SeekerAgent : Agent
     
     [SerializeField] private UnityEvent onNewEpisode;
     
-    private int _frameCounter;
+    private int _frameCounter = 0;
 
     private void Awake()
     {
@@ -33,19 +33,18 @@ public class SeekerAgent : Agent
         _rBody = GetComponent<Rigidbody>();
         _targetRbody = target.GetComponent<Rigidbody>();
     }
-    
-    public override void Initialize() { }
 
     public override void OnEpisodeBegin()
     {
         _rBody.velocity = Vector3.zero;
+        //gameObject.transform.position = new Vector3(-5,1,-6);
     }
     
     public override void CollectObservations(VectorSensor sensor)
     {
         sensor.AddObservation(transform.localRotation.y);
         
-        Vector3 toTarget = target.transform.localPosition - transform.localPosition;
+        var toTarget = target.transform.localPosition - transform.localPosition;
         sensor.AddObservation(toTarget.magnitude * rotationSpeed);
         sensor.AddObservation(toTarget.normalized);
         sensor.AddObservation(_rBody.velocity);
@@ -61,34 +60,34 @@ public class SeekerAgent : Agent
     
     private void MoveAgent(ActionSegment<int> act)
     {
+        var forwardAction = act[(int)AgentActions.Forward];
+        var sidewardAction = act[(int)AgentActions.Sideward];
+        var rotationAction = act[(int)AgentActions.Rotation];
+        var jumpAction = act[(int)AgentActions.Jump];
+        
         var speedModifier = _isGrounded ? 1f : 0.5f;
         Vector3 dirToGo = Vector3.zero;
 
-        // Movement direction
-        dirToGo += act[(int)AgentActions.Forward] == 1 ? speedModifier * _agentTransform.forward : Vector3.zero;
-        dirToGo -= act[(int)AgentActions.Forward] == 2 ? speedModifier * _agentTransform.forward : Vector3.zero;
+        // Set movement direction
+        dirToGo += forwardAction == 1 ? speedModifier * _agentTransform.forward : Vector3.zero;
+        dirToGo -= forwardAction == 2 ? speedModifier * _agentTransform.forward : Vector3.zero;
 
-        dirToGo += act[(int)AgentActions.Sideward] == 1 ? speedModifier * _agentTransform.right : Vector3.zero;
-        dirToGo -= act[(int)AgentActions.Sideward] == 2 ? speedModifier * _agentTransform.right : Vector3.zero;
+        dirToGo += sidewardAction == 1 ? speedModifier * _agentTransform.right : Vector3.zero;
+        dirToGo -= sidewardAction == 2 ? speedModifier * _agentTransform.right : Vector3.zero;
 
         ApplyMovement(dirToGo);
-        ApplyRotation(GetRotationDirection(act));
-
-        if (!_isGrounded && act[(int)AgentActions.Jump] == 0 && _rBody.velocity.y > -_maxFallSpeed)
+        ApplyRotation(GetRotationDirection(rotationAction));
+        
+        // Gravity boost if not grounded and not jumping
+        if (!_isGrounded && jumpAction == 0 && _rBody.velocity.y > -_maxFallSpeed)
         {
             _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
         }
+        if (jumpAction == 1) Jump();
 
-        if (act[(int)AgentActions.Jump] == 1)
-        {
-            Jump();
-        }
-        
-        // Update distance to target every 5 frames
-        if (_frameCounter % 5 == 0)
-        {
-            UpdateDistanceToTarget();
-        }
+        // Update distance to target less frequently
+        if (_frameCounter % 5 == 0) UpdateDistanceToTarget();
+           
         _frameCounter++;
     }
     
@@ -104,21 +103,15 @@ public class SeekerAgent : Agent
     
     private void Jump()
     {
-        if (_isGrounded)
-        {
-            _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            _isGrounded = false;
-        }
+        if (!_isGrounded) return;
+        _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        _isGrounded = false; // Prevent double jumps
     }
     
     private void UpdateDistanceToTarget()
     {
         _distanceToTarget = Vector3.Distance(transform.localPosition, target.transform.localPosition);
-        if (_previousDistance > _distanceToTarget)
-            AddReward(0.02f);
-        else
-            AddReward(-0.02f);
-        
+        AddReward(_previousDistance > _distanceToTarget ? 0.02f : -0.02f);
         _previousDistance = _distanceToTarget;
     }
     
@@ -131,16 +124,8 @@ public class SeekerAgent : Agent
     private void CheckIfGrounded()
     {
         if (_isGrounded) return; // Only raycast if not grounded
-        
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f))
-        {
-            if (hit.collider.CompareTag("walkableSurface"))
-            {
-                _isGrounded = true;
-                return;
-            }
-        }
-        _isGrounded = false;
+
+        _isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f) && hit.collider.CompareTag("walkableSurface");
     }
     
     private void OnCollisionEnter(Collision other)
@@ -151,10 +136,10 @@ public class SeekerAgent : Agent
             onNewEpisode.Invoke();
             EndEpisode();
         }        
-        else if (other.gameObject.CompareTag("Wall"))
-        {
-            AddReward(-0.05f - 0.01f * _distanceToTarget); 
-        }
+        // else if (other.gameObject.CompareTag("Wall"))
+        // {
+        //     AddReward(-0.05f - -0.01f * _distanceToTarget); 
+        // }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -176,9 +161,9 @@ public class SeekerAgent : Agent
         discreteActionsOut[3] = Input.GetKey(KeyCode.Space) ? 1 : 0;
     }
 
-    private Vector3 GetRotationDirection(ActionSegment<int> act)
+    private Vector3 GetRotationDirection(int rotationAction)
     {
-        return act[(int)AgentActions.Rotation] switch
+        return rotationAction switch
         {
             1 => -_agentTransform.up,
             2 => _agentTransform.up,
