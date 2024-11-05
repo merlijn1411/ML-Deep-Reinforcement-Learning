@@ -3,6 +3,7 @@ using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 using UnityEngine.Events;
+
 public class RunnerAgent : Agent
 {
     private Transform _agentTransform; 
@@ -11,8 +12,6 @@ public class RunnerAgent : Agent
     [SerializeField] private float walkSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float rotationSpeed;
-    
-    [SerializeField] private Timer countDown;
 
     private const float _forceDownMultiplier = 50f;
     private const float _maxFallSpeed = -20f;
@@ -31,14 +30,10 @@ public class RunnerAgent : Agent
     private void Awake()
     {
         _agentTransform = transform;
-    }
-
-    public override void Initialize()
-    {
         _rBody = GetComponent<Rigidbody>();
         _targetRbody = target.GetComponent<Rigidbody>();
     }
-    
+
     public override void OnEpisodeBegin()
     {
         _rBody.velocity = Vector3.zero;
@@ -46,79 +41,51 @@ public class RunnerAgent : Agent
     
     public override void CollectObservations(VectorSensor sensor)
     {
-        //Agent y axis rotation(1)
         sensor.AddObservation(transform.localRotation.y);
         
-        //Vector van target naar ball (direction naar target)(3)
-        var toTarget = new Vector3((target.transform.localPosition.x - transform.localPosition.x) * rotationSpeed,
-            (target.transform.localPosition.y - transform.localPosition.y),(target.transform.localPosition.z - transform.localPosition.z)*rotationSpeed);
-        
-        sensor.AddObservation(toTarget.magnitude);
-        
-        //Aftsand van de target(1)
+        // Calculate direction to target
+        Vector3 toTarget = target.transform.localPosition - transform.localPosition;
+        sensor.AddObservation(toTarget.magnitude * rotationSpeed);
         sensor.AddObservation(toTarget.normalized);
-            
-        //Agent velocity(3)
         sensor.AddObservation(_rBody.velocity);
-        
-        // target velocity (3 floats)
-        sensor.AddObservation(_targetRbody.velocity.y);
-        sensor.AddObservation(_targetRbody.velocity.z * rotationSpeed);
-        sensor.AddObservation(_targetRbody.velocity.x * rotationSpeed);
+        sensor.AddObservation(_targetRbody.velocity);
     }
     
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         CheckIfGrounded();
-        
         MoveAgent(actionBuffers.DiscreteActions);
         AddReward(0.001f);
     }
     
     private void MoveAgent(ActionSegment<int> act)
     {
-        //Dit is inprencipe het zelfde als Input.GetAxis zodat de Machine kan leren bewegen.
-
         var forwardAction = act[(int)AgentActions.Forward];
         var sidewardAction = act[(int)AgentActions.Sideward];
         var rotationAction = act[(int)AgentActions.Rotation];
         var jumpAction = act[(int)AgentActions.Jump];
         
         var speedModifier = _isGrounded ? 1f : 0.5f;
-        var dirToGo = Vector3.zero;
+        Vector3 dirToGo = Vector3.zero;
 
-        // Bewegingsrichting instellen
+        // Set movement direction
         if (forwardAction == 1) dirToGo += speedModifier * _agentTransform.forward;
-        else if (forwardAction == 2) dirToGo -= speedModifier * _agentTransform.forward;
-
+        if (forwardAction == 2) dirToGo -= speedModifier * _agentTransform.forward;
         if (sidewardAction == 1) dirToGo += speedModifier * _agentTransform.right;
-        else if (sidewardAction == 2) dirToGo -= speedModifier * _agentTransform.right;
-
-        // Rotatierichting instellen
-        var rotateDir = rotationAction == 1 ? -_agentTransform.up : 
-            rotationAction == 2 ? _agentTransform.up : 
-            Vector3.zero;
+        if (sidewardAction == 2) dirToGo -= speedModifier * _agentTransform.right;
 
         ApplyMovement(dirToGo);
-        ApplyRotation(rotateDir);
+        ApplyRotation(GetRotationDirection(rotationAction));
         
-        // Gravity boost als agent niet op de grond is en niet springt
+        // Gravity boost if not grounded and not jumping
         if (!_isGrounded && jumpAction == 0 && _rBody.velocity.y > -_maxFallSpeed)
         {
             _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
         }
+        if (jumpAction == 1) Jump();
 
-        // Sprongactie
-        if (jumpAction == 1)
-        {
-            Jump(jumpForce);
-        }
-        
-        // Bereken afstand tot doel minder vaak
-        if (_frameCounter % 5 == 0)
-        {
-            DistanceToTarget();
-        }
+        // Update distance to target less frequently
+        if (_frameCounter % 5 == 0) UpdateDistanceToTarget();
         _frameCounter++;
     }
     
@@ -129,16 +96,15 @@ public class RunnerAgent : Agent
     
     private void ApplyMovement(Vector3 dirToGo)
     {
-        var horizontalVelocity = dirToGo.normalized * walkSpeed;
-        _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
+        _rBody.velocity = new Vector3(dirToGo.x * walkSpeed, _rBody.velocity.y, dirToGo.z * walkSpeed);
     }
     
-    private void Jump(float jumpForce)
+    private void Jump()
     {
         if (_isGrounded)
         {
             _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            _isGrounded = false; // Zorg ervoor dat deze wordt gezet om dubbele sprongen te vermijden
+            _isGrounded = false; // Prevent double jumps
         }
     }
     
@@ -148,37 +114,30 @@ public class RunnerAgent : Agent
         EndEpisode();
     }
     
-    private void DistanceToTarget()
+    private void UpdateDistanceToTarget()
     {
         _distanceToTarget = Vector3.Distance(transform.localPosition, target.transform.localPosition);
-        // Reward for reducing distance to the cube
-        if (_previousDistance > _distanceToTarget)
-            AddReward(-0.02f); // Give a small negative reward for getting closer
-        else
-            AddReward(0.02f); // Give a small Positve reward for getting Furthur away
-        
+        AddReward(_previousDistance > _distanceToTarget ? -0.02f : 0.02f);
         _previousDistance = _distanceToTarget;
     }
     
-    
     private void CheckIfGrounded()
     {
-        RaycastHit hit;
-        const float distance = 1.1f;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, distance))
+        if (_isGrounded) return; // Only raycast if not grounded
+
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f))
         {
-            if (hit.collider.CompareTag("walkableSurface"))
-            {
-                _isGrounded = true;
-                return;
-            }
+            _isGrounded = hit.collider.CompareTag("walkableSurface");
         }
-        _isGrounded = false;
+        else
+        {
+            _isGrounded = false;
+        }
     }
     
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag($"Seeker"))
+        if (other.gameObject.CompareTag("Seeker"))
         {
             SetReward(-1f);
             onNewEpisode.Invoke();
@@ -195,17 +154,18 @@ public class RunnerAgent : Agent
         var discreteActionsOut = actionsOut.DiscreteActions;
         discreteActionsOut.Clear();
 
-        if (Input.GetKey(KeyCode.W))
-            discreteActionsOut[0] = 1;
-        else if (Input.GetKey(KeyCode.S))
-            discreteActionsOut[0] = 2;
+        discreteActionsOut[0] = Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? 2 : 0;
+        discreteActionsOut[1] = Input.GetKey(KeyCode.D) ? 2 : Input.GetKey(KeyCode.A) ? 1 : 0;
+        discreteActionsOut[3] = Input.GetKey(KeyCode.Space) ? 1 : 0;
+    }
 
-        if (Input.GetKey(KeyCode.D))
-            discreteActionsOut[1] = 2;
-        else if (Input.GetKey(KeyCode.A))
-            discreteActionsOut[1] = 1;
-
-        if (Input.GetKey(KeyCode.Space))
-            discreteActionsOut[3] = 1;
+    private Vector3 GetRotationDirection(int rotationAction)
+    {
+        return rotationAction switch
+        {
+            1 => -_agentTransform.up,
+            2 => _agentTransform.up,
+            _ => Vector3.zero,
+        };
     }
 }

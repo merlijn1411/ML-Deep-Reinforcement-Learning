@@ -3,6 +3,7 @@ using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 using UnityEngine.Events;
+
 public class SeekerAgent : Agent
 {
     private Transform _agentTransform; 
@@ -11,8 +12,6 @@ public class SeekerAgent : Agent
     [SerializeField] private float walkSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float rotationSpeed;
-    
-    [SerializeField] private Timer countDown;
 
     private const float _forceDownMultiplier = 50f;
     private const float _maxFallSpeed = -20f;
@@ -26,46 +25,31 @@ public class SeekerAgent : Agent
     
     [SerializeField] private UnityEvent onNewEpisode;
     
-    private int _frameCounter = 0;
-    
+    private int _frameCounter;
+
     private void Awake()
     {
         _agentTransform = transform;
-    }
-    
-    public override void Initialize()
-    {
         _rBody = GetComponent<Rigidbody>();
         _targetRbody = target.GetComponent<Rigidbody>();
     }
+    
+    public override void Initialize() { }
+
     public override void OnEpisodeBegin()
     {
         _rBody.velocity = Vector3.zero;
     }
     
-    //Deze method houd bij welke gegevens hij moet onthouden dat word gebruikt om een vedere beslissing te maken (dus action). 
     public override void CollectObservations(VectorSensor sensor)
     {
-        //Agent y axis rotation(1)
         sensor.AddObservation(transform.localRotation.y);
         
-        //Vector van target naar ball (direction naar target)(3)
-        var toTarget = new Vector3((target.transform.localPosition.x - transform.localPosition.x) * rotationSpeed,
-            (target.transform.localPosition.y - transform.localPosition.y),(target.transform.localPosition.z - transform.localPosition.z)*rotationSpeed);
-        
-        sensor.AddObservation(toTarget.magnitude);
-        
-        //Aftsand van de target(1)
+        Vector3 toTarget = target.transform.localPosition - transform.localPosition;
+        sensor.AddObservation(toTarget.magnitude * rotationSpeed);
         sensor.AddObservation(toTarget.normalized);
-            
-        //Agent velocity(3)
         sensor.AddObservation(_rBody.velocity);
-        
-        
-        // target velocity (3 floats)
-        sensor.AddObservation(_targetRbody.velocity.y);
-        sensor.AddObservation(_targetRbody.velocity.z * rotationSpeed);
-        sensor.AddObservation(_targetRbody.velocity.x * rotationSpeed);
+        sensor.AddObservation(_targetRbody.velocity);
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
@@ -77,47 +61,33 @@ public class SeekerAgent : Agent
     
     private void MoveAgent(ActionSegment<int> act)
     {
-        //Dit is inprencipe het zelfde als Input.GetAxis zodat de Machine kan leren bewegen.
-
-        var forwardAction = act[(int)AgentActions.Forward];
-        var sidewardAction = act[(int)AgentActions.Sideward];
-        var rotationAction = act[(int)AgentActions.Rotation];
-        var jumpAction = act[(int)AgentActions.Jump];
-        
         var speedModifier = _isGrounded ? 1f : 0.5f;
-        var dirToGo = Vector3.zero;
+        Vector3 dirToGo = Vector3.zero;
 
-        // Bewegingsrichting instellen
-        if (forwardAction == 1) dirToGo += speedModifier * _agentTransform.forward;
-        else if (forwardAction == 2) dirToGo -= speedModifier * _agentTransform.forward;
+        // Movement direction
+        dirToGo += act[(int)AgentActions.Forward] == 1 ? speedModifier * _agentTransform.forward : Vector3.zero;
+        dirToGo -= act[(int)AgentActions.Forward] == 2 ? speedModifier * _agentTransform.forward : Vector3.zero;
 
-        if (sidewardAction == 1) dirToGo += speedModifier * _agentTransform.right;
-        else if (sidewardAction == 2) dirToGo -= speedModifier * _agentTransform.right;
-
-        // Rotatierichting instellen
-        var rotateDir = rotationAction == 1 ? -_agentTransform.up : 
-            rotationAction == 2 ? _agentTransform.up : 
-            Vector3.zero;
+        dirToGo += act[(int)AgentActions.Sideward] == 1 ? speedModifier * _agentTransform.right : Vector3.zero;
+        dirToGo -= act[(int)AgentActions.Sideward] == 2 ? speedModifier * _agentTransform.right : Vector3.zero;
 
         ApplyMovement(dirToGo);
-        ApplyRotation(rotateDir);
-        
-        // Gravity boost als agent niet op de grond is en niet springt
-        if (!_isGrounded && jumpAction == 0 && _rBody.velocity.y > -_maxFallSpeed)
+        ApplyRotation(GetRotationDirection(act));
+
+        if (!_isGrounded && act[(int)AgentActions.Jump] == 0 && _rBody.velocity.y > -_maxFallSpeed)
         {
             _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
         }
 
-        // Sprongactie
-        if (jumpAction == 1)
+        if (act[(int)AgentActions.Jump] == 1)
         {
-            Jump(jumpForce);
+            Jump();
         }
         
-        // Bereken afstand tot doel minder vaak
+        // Update distance to target every 5 frames
         if (_frameCounter % 5 == 0)
         {
-            DistanceToTarget();
+            UpdateDistanceToTarget();
         }
         _frameCounter++;
     }
@@ -129,45 +99,40 @@ public class SeekerAgent : Agent
     
     private void ApplyMovement(Vector3 dirToGo)
     {
-        var horizontalVelocity = dirToGo.normalized * walkSpeed;
-        _rBody.velocity = new Vector3(horizontalVelocity.x, _rBody.velocity.y, horizontalVelocity.z);
+        _rBody.velocity = new Vector3(dirToGo.x * walkSpeed, _rBody.velocity.y, dirToGo.z * walkSpeed);
     }
     
-    private void Jump(float jumpForce)
+    private void Jump()
     {
         if (_isGrounded)
         {
             _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            _isGrounded = false; // Zorg ervoor dat deze wordt gezet om dubbele sprongen te vermijden
+            _isGrounded = false;
         }
     }
     
-    private void DistanceToTarget()
+    private void UpdateDistanceToTarget()
     {
         _distanceToTarget = Vector3.Distance(transform.localPosition, target.transform.localPosition);
-        // Reward for reducing distance to the cube
         if (_previousDistance > _distanceToTarget)
-            AddReward(0.02f); // Give a small positive reward for getting closer
+            AddReward(0.02f);
         else
-            AddReward(-0.02f); // Give a small negative reward for getting Furthur away
+            AddReward(-0.02f);
         
         _previousDistance = _distanceToTarget;
     }
     
-
     public void TimerReachedZeroReward()
     {
-        var reward = (_distanceToTarget / 20f) * -1f; //de reward word op de hand van hoe dichtbij hij bij de target komt berekend.
-        SetReward(reward);
+        SetReward((_distanceToTarget / 20f) * -1f);
         EndEpisode();
-        
     }
     
     private void CheckIfGrounded()
     {
-        RaycastHit hit;
-        const float distance = 1.1f;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, distance))
+        if (_isGrounded) return; // Only raycast if not grounded
+        
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f))
         {
             if (hit.collider.CompareTag("walkableSurface"))
             {
@@ -180,7 +145,7 @@ public class SeekerAgent : Agent
     
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag($"Runner"))
+        if (other.gameObject.CompareTag("Runner"))
         {
             SetReward(1f);
             onNewEpisode.Invoke();
@@ -194,7 +159,7 @@ public class SeekerAgent : Agent
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag($"RewardPoint"))
+        if (other.gameObject.CompareTag("RewardPoint"))
         {
             SetReward(0.3f);
             Destroy(other.gameObject);
@@ -206,17 +171,18 @@ public class SeekerAgent : Agent
         var discreteActionsOut = actionsOut.DiscreteActions;
         discreteActionsOut.Clear();
 
-        if (Input.GetKey(KeyCode.W))
-            discreteActionsOut[0] = 1;
-        else if (Input.GetKey(KeyCode.S))
-            discreteActionsOut[0] = 2;
+        discreteActionsOut[0] = Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? 2 : 0;
+        discreteActionsOut[1] = Input.GetKey(KeyCode.D) ? 2 : Input.GetKey(KeyCode.A) ? 1 : 0;
+        discreteActionsOut[3] = Input.GetKey(KeyCode.Space) ? 1 : 0;
+    }
 
-        if (Input.GetKey(KeyCode.D))
-            discreteActionsOut[1] = 2;
-        else if (Input.GetKey(KeyCode.A))
-            discreteActionsOut[1] = 1;
-
-        if (Input.GetKey(KeyCode.Space))
-            discreteActionsOut[3] = 1;
+    private Vector3 GetRotationDirection(ActionSegment<int> act)
+    {
+        return act[(int)AgentActions.Rotation] switch
+        {
+            1 => -_agentTransform.up,
+            2 => _agentTransform.up,
+            _ => Vector3.zero,
+        };
     }
 }
