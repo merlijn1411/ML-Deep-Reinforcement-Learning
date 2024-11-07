@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Runner
   - Wall
+  - RewardPoint
   layers:
   - Default
   - TransparentFX

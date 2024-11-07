@@ -1,7 +1,7 @@
 {
     "metadata": {
         "stats_format_version": "0.3.0",
-        "mlagents_version": "0.30.0",
+        "mlagents_version": "0.29.0",
         "torch_version": "2.4.1+cpu"
     },
     "SR": {
@@ -71,24 +71,6 @@
             {
                 "steps": 1158620,
                 "file_path": "results\\ppo\\Seeker\\Seeker-1158620.onnx",
-                "reward": -1.4650000035762787,
-                "creation_time": 1727117706.3245044,
-                "auxillary_file_paths": [
-                    "results\\ppo\\Seeker\\Seeker-1158620.pt"
-                ]
-            },
-            {
-                "steps": 1158620,
-                "file_path": "results\\ppo\\Seeker\\Seeker-1158620.onnx",
-                "reward": null,
-                "creation_time": 1727125489.7923596,
-                "auxillary_file_paths": [
-                    "results\\ppo\\Seeker\\Seeker-1158620.pt"
-                ]
-            },
-            {
-                "steps": 1158620,
-                "file_path": "results\\ppo\\Seeker\\Seeker-1158620.onnx",
                 "reward": null,
                 "creation_time": 1727125528.6944914,
                 "auxillary_file_paths": [
@@ -112,13 +94,31 @@
                 "auxillary_file_paths": [
                     "results\\ppo\\Seeker\\Seeker-1158620.pt"
                 ]
+            },
+            {
+                "steps": 1158620,
+                "file_path": "results\\ppo\\Seeker\\Seeker-1158620.onnx",
+                "reward": null,
+                "creation_time": 1727164447.9676614,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Seeker\\Seeker-1158620.pt"
+                ]
+            },
+            {
+                "steps": 1158620,
+                "file_path": "results\\ppo\\Seeker\\Seeker-1158620.onnx",
+                "reward": null,
+                "creation_time": 1727164550.0127623,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Seeker\\Seeker-1158620.pt"
+                ]
             }
         ],
         "final_checkpoint": {
             "steps": 1158620,
             "file_path": "results\\ppo\\Seeker.onnx",
             "reward": null,
-            "creation_time": 1727129494.8474805,
+            "creation_time": 1727164550.0127623,
             "auxillary_file_paths": [
                 "results\\ppo\\Seeker\\Seeker-1158620.pt"
             ]
