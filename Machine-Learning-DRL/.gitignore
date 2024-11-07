@@ -75,6 +75,11 @@ build/
 # Generated doc folders
 /docs/html
 
+# ML Result folder 
+results/
+!results/ppo/.gitkeep
+
+
 # Python virtual environment
 venv/
 .mypy_cache/
