@@ -1,5 +1,6 @@
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Policies;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,8 +14,7 @@ public class RunnerAgent : Agent
     [SerializeField] private float jumpForce;
     [SerializeField] private float rotationSpeed;
 
-    private const float _forceDownMultiplier = 50f;
-    private const float _maxFallSpeed = -20f;
+    private const float _forceDownMultiplier = 30f;
     
     private Rigidbody _rBody;
     private Rigidbody _targetRbody;
@@ -27,11 +27,14 @@ public class RunnerAgent : Agent
     
     private int _frameCounter = 0;
 
+    private BehaviorParameters _behaviorParameters;
+
     private void Awake()
     {
         _agentTransform = transform;
         _rBody = GetComponent<Rigidbody>();
         _targetRbody = target.GetComponent<Rigidbody>();
+        _behaviorParameters = GetComponent<BehaviorParameters>();
     }
 
     public override void OnEpisodeBegin()
@@ -78,11 +81,8 @@ public class RunnerAgent : Agent
         ApplyMovement(dirToGo);
         ApplyRotation(GetRotationDirection(rotationAction));
         
-        // Gravity boost if not grounded and not jumping
-        if (!_isGrounded && jumpAction == 0 && _rBody.velocity.y > -_maxFallSpeed)
-        {
-            _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
-        }
+        _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
+        
         if (jumpAction == 1) Jump();
 
         // Update distance to target less frequently
@@ -148,8 +148,15 @@ public class RunnerAgent : Agent
         discreteActionsOut.Clear();
 
         discreteActionsOut[0] = Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? 2 : 0;
-        discreteActionsOut[1] = Input.GetKey(KeyCode.D) ? 2 : Input.GetKey(KeyCode.A) ? 1 : 0;
+        discreteActionsOut[1] = Input.GetKey(KeyCode.E) ? 2 : Input.GetKey(KeyCode.Q) ? 1 : 0;
+        discreteActionsOut[2] = Input.GetKey(KeyCode.D) ? 2 : Input.GetKey(KeyCode.A) ? 1 : 0;
         discreteActionsOut[3] = Input.GetKey(KeyCode.Space) ? 1 : 0;
+    }
+    
+    public void SetBehaviourType(BehaviorType newType)
+    {
+        _behaviorParameters.BehaviorType = newType;
+        Debug.Log($"Behavior type changed to: {newType}");
     }
 
     private Vector3 GetRotationDirection(int rotationAction)
