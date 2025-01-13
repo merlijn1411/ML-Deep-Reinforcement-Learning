@@ -1,0 +1,24 @@
+c:\users\merij\source\repos\ml-deep-reinforcement-learning\machine-learning-drl\venv\lib\site-packages\torch\__init__.py:955: UserWarning: torch.set_default_tensor_type() is deprecated as of PyTorch 2.1, please use torch.set_default_dtype() and torch.set_default_device() as alternatives. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\tensor\python_tensor.cpp:434.)
+  _C._set_default_tensor_type(t)
+Traceback (most recent call last):
+  File "c:\users\merij\source\repos\ml-deep-reinforcement-learning\machine-learning-drl\venv\lib\site-packages\mlagents\trainers\cli_utils.py", line 306, in load_config
+    with open(config_path) as data_file:
+FileNotFoundError: [Errno 2] No such file or directory: 'SR_config.yaml'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\merij\AppData\Local\Programs\Python\Python38\lib\runpy.py", line 192, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\merij\AppData\Local\Programs\Python\Python38\lib\runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\merij\source\repos\ML-Deep-Reinforcement-Learning\Machine-Learning-DRL\venv\Scripts\mlagents-learn.exe\__main__.py", line 7, in <module>
+  File "c:\users\merij\source\repos\ml-deep-reinforcement-learning\machine-learning-drl\venv\lib\site-packages\mlagents\trainers\learn.py", line 260, in main
+    run_cli(parse_command_line())
+  File "c:\users\merij\source\repos\ml-deep-reinforcement-learning\machine-learning-drl\venv\lib\site-packages\mlagents\trainers\learn.py", line 52, in parse_command_line
+    return RunOptions.from_argparse(args)
+  File "c:\users\merij\source\repos\ml-deep-reinforcement-learning\machine-learning-drl\venv\lib\site-packages\mlagents\trainers\settings.py", line 920, in from_argparse
+    configured_dict.update(load_config(config_path))
+  File "c:\users\merij\source\repos\ml-deep-reinforcement-learning\machine-learning-drl\venv\lib\site-packages\mlagents\trainers\cli_utils.py", line 310, in load_config
+    raise TrainerConfigError(f"Config file could not be found at {abs_path}.")
+mlagents.trainers.exception.TrainerConfigError: Config file could not be found at C:\Users\merij\source\repos\ML-Deep-Reinforcement-Learning\Machine-Learning-DRL\SR_config.yaml.

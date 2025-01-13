@@ -1,0 +1,183 @@
+using Unity.MLAgents;
+using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Policies;
+using Unity.MLAgents.Sensors;
+using UnityEngine;
+using UnityEngine.Events;
+
+public class SeekerAgent : Agent
+{
+    private Transform _agentTransform; 
+    [SerializeField] private GameObject target;
+    [SerializeField] private EnvironmentManager environmentManager;
+    
+    [SerializeField] private float walkSpeed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private float rotationSpeed;
+
+    private const float _forceDownMultiplier = 30f;
+        
+    private Rigidbody _rBody;
+    private Rigidbody _targetRbody;
+    private bool _isGrounded;
+    
+    private float _previousDistance;
+    private float _distanceToTarget;
+    
+    [SerializeField] private UnityEvent onNewEpisode;
+    
+    private int _frameCounter = 0;
+
+    private BehaviorParameters _behaviorParameters;
+
+    private void Awake()
+    {
+        _agentTransform = transform;
+        _rBody = GetComponent<Rigidbody>();
+        _targetRbody = target.GetComponent<Rigidbody>();
+        _behaviorParameters = GetComponent<BehaviorParameters>();
+    }
+
+    public override void OnEpisodeBegin()
+    {
+        _rBody.velocity = Vector3.zero;
+        //gameObject.transform.position = new Vector3(-5,1,-6);
+    }
+    
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        sensor.AddObservation(transform.localRotation.y);
+        
+        var toTarget = target.transform.localPosition - transform.localPosition;
+        sensor.AddObservation(toTarget.magnitude * rotationSpeed);
+        sensor.AddObservation(toTarget.normalized);
+        sensor.AddObservation(_rBody.velocity);
+        sensor.AddObservation(_targetRbody.velocity);
+    }
+
+    public override void OnActionReceived(ActionBuffers actionBuffers)
+    {
+        CheckIfGrounded();
+        MoveAgent(actionBuffers.DiscreteActions);
+        AddReward(-0.001f);
+    }
+    
+    private void MoveAgent(ActionSegment<int> act)
+    {
+        var forwardAction = act[(int)AgentActions.Forward];
+        var sidewardAction = act[(int)AgentActions.Sideward];
+        var rotationAction = act[(int)AgentActions.Rotation];
+        var jumpAction = act[(int)AgentActions.Jump];
+        
+        var speedModifier = _isGrounded ? 1f : 0.5f;
+        Vector3 dirToGo = Vector3.zero;
+
+        // Set movement direction
+        dirToGo += forwardAction == 1 ? speedModifier * _agentTransform.forward : Vector3.zero;
+        dirToGo -= forwardAction == 2 ? speedModifier * _agentTransform.forward : Vector3.zero;
+
+        dirToGo += sidewardAction == 1 ? speedModifier * _agentTransform.right : Vector3.zero;
+        dirToGo -= sidewardAction == 2 ? speedModifier * _agentTransform.right : Vector3.zero;
+
+        ApplyMovement(dirToGo);
+        ApplyRotation(GetRotationDirection(rotationAction));
+        
+        // Gravity boost if not grounded and not jumping
+        _rBody.AddForce(Vector3.down * _forceDownMultiplier, ForceMode.Acceleration);
+        
+        if (jumpAction == 1) Jump();
+
+        // Update distance to target less frequently
+        if (_frameCounter % 5 == 0) UpdateDistanceToTarget();
+           
+        _frameCounter++;
+    }
+    
+    private void ApplyRotation(Vector3 rotateDir)
+    {
+        transform.Rotate(rotateDir, rotationSpeed);
+    }
+    
+    private void ApplyMovement(Vector3 dirToGo)
+    {
+        _rBody.velocity = new Vector3(dirToGo.x * walkSpeed, _rBody.velocity.y, dirToGo.z * walkSpeed);
+    }
+    
+    private void Jump()
+    {
+        if (!_isGrounded) return;
+        _rBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        _isGrounded = false; // Prevent double jumps
+    }
+    
+    private void UpdateDistanceToTarget()
+    {
+        _distanceToTarget = Vector3.Distance(transform.localPosition, target.transform.localPosition);
+        AddReward(_previousDistance > _distanceToTarget ? 0.02f : -0.02f);
+        _previousDistance = _distanceToTarget;
+    }
+    
+    public void TimerReachedZeroReward()
+    {
+        SetReward((_distanceToTarget / 20f) * -1f);
+        EndEpisode();
+    }
+    
+    private void CheckIfGrounded()
+    {
+        if (_isGrounded) return; // Only raycast if not grounded
+
+        _isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 1.1f) && hit.collider.CompareTag("walkableSurface");
+    }
+    
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Runner"))
+        {
+            SetReward(1f);
+            onNewEpisode.Invoke();
+            environmentManager.UpdateSeekerCounter();
+            EndEpisode();
+        }        
+        // else if (other.gameObject.CompareTag("Wall"))
+        // {
+        //     AddReward(-0.05f - -0.01f * _distanceToTarget); 
+        // }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("RewardPoint"))
+        {
+            SetReward(0.3f);
+            Destroy(other.gameObject);
+        }
+    }
+    
+    public override void Heuristic(in ActionBuffers actionsOut)
+    {
+        var discreteActionsOut = actionsOut.DiscreteActions;
+        discreteActionsOut.Clear();
+
+        discreteActionsOut[0] = Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? 2 : 0;
+        discreteActionsOut[1] = Input.GetKey(KeyCode.E) ? 2 : Input.GetKey(KeyCode.Q) ? 1 : 0;
+        discreteActionsOut[2] = Input.GetKey(KeyCode.D) ? 2 : Input.GetKey(KeyCode.A) ? 1 : 0;
+        discreteActionsOut[3] = Input.GetKey(KeyCode.Space) ? 1 : 0;
+    }
+
+    public void SetBehaviourType(BehaviorType newType)
+    {
+        _behaviorParameters.BehaviorType = newType;
+        Debug.Log($"Behavior type changed to: {newType}");
+    }
+
+    private Vector3 GetRotationDirection(int rotationAction)
+    {
+        return rotationAction switch
+        {
+            1 => -_agentTransform.up,
+            2 => _agentTransform.up,
+            _ => Vector3.zero,
+        };
+    }
+}
